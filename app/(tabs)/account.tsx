@@ -1,50 +1,97 @@
-// app/account.js
-import React from "react";
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+    View,
+    Text,
+    StyleSheet,
+    Image,
+    TouchableOpacity,
+    ScrollView,
+    Alert,
+    ActivityIndicator,
+} from "react-native";
 import { useRouter } from "expo-router";
 import Icon from "react-native-vector-icons/MaterialIcons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
+
+type User = {
+    name: string;
+    email: string;
+    phone?: string;
+    photo?: string;
+};
 
 export default function AccountPage() {
     const router = useRouter();
 
-    // Mock user data
-    const user = {
-        name: "John Doe",
-        email: "john@example.com",
-        phone: "+1 234 567 890",
-        photo: "https://via.placeholder.com/100",
-        password: "********"
+    const [user, setUser] = useState<User | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const token = await AsyncStorage.getItem("token");
+
+                if (!token) {
+                    router.replace("/login");
+                    return;
+                }
+
+                const response = await axios.get("http://laravel_auth.loc/api/user", {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+
+                setUser(response.data);
+            } catch {
+                Alert.alert("Error", "Unable to load user information.");
+                router.replace("/login");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        void fetchUser();
+    }, [router]);
+
+    const handleLogout = async () => {
+        try {
+            await AsyncStorage.removeItem("token");
+            router.replace("/login");
+        } catch {
+            Alert.alert("Error", "Unable to remove token.");
+        }
     };
 
-    const handleLogin = () => {
-        router.push("/login");
-    };
+    if (loading) {
+        return (
+            <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#4CAF50" />
+            </View>
+        );
+    }
 
-    const handleLogout = () => {
-        // You can clear auth tokens here
-        router.push("/logout");
-    };
+    if (!user) {
+        return null;
+    }
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
-            {/* Profile Picture */}
-            <Image source={{ uri: user.photo }} style={styles.profileImage} />
+            <Image
+                source={{
+                    uri: user.photo || "https://via.placeholder.com/100",
+                }}
+                style={styles.profileImage}
+            />
 
-            {/* User Info */}
             <View style={styles.infoContainer}>
                 <InfoRow icon="person" label="Name" value={user.name} />
                 <InfoRow icon="email" label="Email" value={user.email} />
-                <InfoRow icon="phone" label="Phone" value={user.phone} />
-                <InfoRow icon="lock" label="Password" value={user.password} />
+                <InfoRow icon="phone" label="Phone" value={user.phone || "-"} />
             </View>
 
-            {/* Actions */}
             <View style={styles.buttonContainer}>
-                <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-                    <Icon name="login" size={20} color="#fff" />
-                    <Text style={styles.buttonText}>Login</Text>
-                </TouchableOpacity>
-
                 <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
                     <Icon name="logout" size={20} color="#fff" />
                     <Text style={styles.buttonText}>Logout</Text>
@@ -54,7 +101,15 @@ export default function AccountPage() {
     );
 }
 
-function InfoRow({ icon, label, value }) {
+function InfoRow({
+    icon,
+    label,
+    value,
+}: {
+    icon: string;
+    label: string;
+    value: string;
+}) {
     return (
         <View style={styles.infoRow}>
             <Icon name={icon} size={22} color="#555" style={{ width: 28 }} />
@@ -67,17 +122,23 @@ function InfoRow({ icon, label, value }) {
 }
 
 const styles = StyleSheet.create({
+    loadingContainer: {
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: "#f9f9f9",
+    },
     container: {
         alignItems: "center",
         padding: 20,
         backgroundColor: "#f9f9f9",
-        flexGrow: 1
+        flexGrow: 1,
     },
     profileImage: {
         width: 100,
         height: 100,
         borderRadius: 50,
-        marginBottom: 20
+        marginBottom: 20,
     },
     infoContainer: {
         width: "100%",
@@ -85,35 +146,27 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         padding: 15,
         marginBottom: 20,
-        elevation: 2
+        elevation: 2,
     },
     infoRow: {
         flexDirection: "row",
         alignItems: "center",
         paddingVertical: 10,
         borderBottomWidth: 1,
-        borderBottomColor: "#eee"
+        borderBottomColor: "#eee",
     },
     label: {
         fontSize: 14,
-        color: "#888"
+        color: "#888",
     },
     value: {
         fontSize: 16,
         color: "#000",
-        fontWeight: "500"
+        fontWeight: "500",
     },
     buttonContainer: {
         flexDirection: "row",
-        gap: 10
-    },
-    loginButton: {
-        flexDirection: "row",
-        alignItems: "center",
-        backgroundColor: "#4CAF50",
-        paddingVertical: 10,
-        paddingHorizontal: 15,
-        borderRadius: 8
+        gap: 10,
     },
     logoutButton: {
         flexDirection: "row",
@@ -121,11 +174,11 @@ const styles = StyleSheet.create({
         backgroundColor: "#F44336",
         paddingVertical: 10,
         paddingHorizontal: 15,
-        borderRadius: 8
+        borderRadius: 8,
     },
     buttonText: {
         color: "#fff",
         fontSize: 16,
-        marginLeft: 5
-    }
+        marginLeft: 5,
+    },
 });

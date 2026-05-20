@@ -6,11 +6,18 @@ import {
     Platform,
     TouchableOpacity,
 } from 'react-native';
-import { Link, useLocalSearchParams } from "expo-router";
+import { Link, useLocalSearchParams, type Href } from "expo-router";
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import React, { useMemo } from 'react';
 
-const TASKS = [
+type Task = {
+    id: string;
+    title: string;
+    date: string;
+    href: Href;
+};
+
+const TASKS: Task[] = [
     { id: '1', title: 'Buy groceries', date: '2025-10-02', href: '/task/1' },
     { id: '2', title: 'Finish project', date: '2025-10-25', href: '/task/2' },
     { id: '3', title: 'Visit dentist', date: '2025-10-15', href: '/task/3' },
@@ -21,7 +28,7 @@ const TASKS = [
     { id: '8', title: 'Call client 8', date: '2025-09-03', href: '/task/8' },
 ];
 
-const sortTasksByMonth = (tasks) => {
+const sortTasksByMonth = (tasks: Task[]) => {
     return [...tasks].sort((a, b) => {
         const monthA = new Date(a.date).getMonth();
         const monthB = new Date(b.date).getMonth();
@@ -42,7 +49,7 @@ export default function TaskListPage() {
         ? TASKS // show all tasks if no month is provided
         : TASKS.filter((task) => getMonthFromDate(task.date) === selectedMonth);
 
-    const sortedTasks = useMemo(() => sortTasksByMonth(filteredTasks), []);
+    const sortedTasks = useMemo(() => sortTasksByMonth(filteredTasks), [filteredTasks]);
 
     return (
         <View style={styles.container}>
