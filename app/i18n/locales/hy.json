@@ -1,0 +1,27 @@
+{
+  "common": {
+    "home": "Գլխավոր",
+    "account": "Հաշիվ",
+    "login": "Մուտք",
+    "logout": "Ելք",
+    "loading": "Բեռնվում է..."
+  },
+  "auth": {
+    "welcomeBack": "Բարի վերադարձ",
+    "loginToContinue": "Մուտք գործեք շարունակելու համար",
+    "emailOrUsername": "Էլ․ փոստ կամ օգտանուն",
+    "password": "Գաղտնաբառ",
+    "loginFailed": "Մուտքը ձախողվեց",
+    "checkCredentials": "Խնդրում ենք ստուգել տվյալները և կրկին փորձել։"
+  },
+  "menu": {
+    "schedule": "Դասացուցակ",
+    "journal": "Մատյան",
+    "task": "Առաջադրանք",
+    "semester": "Առաջադիմություն",
+    "absent": "Բացակայություն",
+    "finance": "Ֆինանսներ",
+    "transport": "Տրանսպորտ",
+    "canteen": "Ճաշարան"
+  }
+}

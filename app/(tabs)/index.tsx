@@ -6,6 +6,7 @@ import {MaterialCommunityIcons} from '@expo/vector-icons';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import API from '../services/api';
+import GeneralPage from "@/app/components/GeneralPage";
 
 type MenuItem = {
     key: string;
@@ -66,29 +67,31 @@ const App = () => {
     }, [router]);
 
     return (
-        <SafeAreaProvider>
-            <SafeAreaView style={styles.container} edges={['top']}>
-                <FlatList
-                    data={DATA}
-                    numColumns={2}
-                    keyExtractor={(item) => item.key}
-                    contentContainerStyle={styles.grid}
-                    renderItem={({item}) => (
-                        <Link href={item.href} style={styles.card}>
-                            <View style={styles.iconWrapper}>
-                                <MaterialCommunityIcons
-                                    name={item.icon}
-                                    size={48}
-                                    color="#1a73e8"
-                                />
-                            </View>
-                            {"\n"}
-                            <Text style={styles.cardText}>{item.title}</Text>
-                        </Link>
-                    )}
-                />
-            </SafeAreaView>
-        </SafeAreaProvider>
+        <GeneralPage title={'Home'}>
+            <SafeAreaProvider>
+                <SafeAreaView style={styles.container} edges={['top']}>
+                    <FlatList
+                        data={DATA}
+                        numColumns={2}
+                        keyExtractor={(item) => item.key}
+                        contentContainerStyle={styles.grid}
+                        renderItem={({item}) => (
+                            <Link href={item.href} style={styles.card}>
+                                <View style={styles.iconWrapper}>
+                                    <MaterialCommunityIcons
+                                        name={item.icon}
+                                        size={48}
+                                        color="#1a73e8"
+                                    />
+                                </View>
+                                {"\n"}
+                                <Text style={styles.cardText}>{item.title}</Text>
+                            </Link>
+                        )}
+                    />
+                </SafeAreaView>
+            </SafeAreaProvider>
+        </GeneralPage>
     )
 };
 

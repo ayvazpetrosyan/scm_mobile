@@ -1,0 +1,27 @@
+{
+  "common": {
+    "home": "Главная",
+    "account": "Аккаунт",
+    "login": "Войти",
+    "logout": "Выйти",
+    "loading": "Загрузка..."
+  },
+  "auth": {
+    "welcomeBack": "С возвращением",
+    "loginToContinue": "Войдите, чтобы продолжить",
+    "emailOrUsername": "Email или имя пользователя",
+    "password": "Пароль",
+    "loginFailed": "Ошибка входа",
+    "checkCredentials": "Проверьте данные и попробуйте снова."
+  },
+  "menu": {
+    "schedule": "Расписание",
+    "journal": "Журнал",
+    "task": "Задания",
+    "semester": "Успеваемость",
+    "absent": "Отсутствия",
+    "finance": "Финансы",
+    "transport": "Транспорт",
+    "canteen": "Столовая"
+  }
+}

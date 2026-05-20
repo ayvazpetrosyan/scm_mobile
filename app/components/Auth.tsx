@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
 
 type AuthProps = {
     children: React.ReactNode;
@@ -23,8 +24,15 @@ export default function Auth({ children }: AuthProps) {
                     return;
                 }
 
+                await axios.get("http://laravel_auth.loc/api/user", {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+
                 setAuthenticated(true);
             } catch {
+                await AsyncStorage.removeItem("token");
                 router.replace("/login");
             } finally {
                 setChecking(false);

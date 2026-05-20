@@ -1,0 +1,27 @@
+{
+  "common": {
+    "home": "Home",
+    "account": "Account",
+    "login": "Login",
+    "logout": "Logout",
+    "loading": "Loading..."
+  },
+  "auth": {
+    "welcomeBack": "Welcome Back",
+    "loginToContinue": "Login to continue",
+    "emailOrUsername": "Email or username",
+    "password": "Password",
+    "loginFailed": "Login failed",
+    "checkCredentials": "Please check your credentials and try again."
+  },
+  "menu": {
+    "schedule": "Schedule",
+    "journal": "Journal",
+    "task": "Tasks",
+    "semester": "Progress",
+    "absent": "Absence",
+    "finance": "Finance",
+    "transport": "Transport",
+    "canteen": "Canteen"
+  }
+}
