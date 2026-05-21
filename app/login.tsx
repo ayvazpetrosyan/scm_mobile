@@ -13,6 +13,7 @@ import {useRouter} from "expo-router";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import axios from "axios";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Api from "@/app/services/api";
 
 export default function LoginPage() {
     const router = useRouter();
@@ -27,8 +28,8 @@ export default function LoginPage() {
         }
 
         try {
-            const response = await axios.post(
-                "http://laravel_auth.loc/api/login",
+            const response = await Api.post(
+                "/login",
                 {
                     user_name: email,
                     password: password,
@@ -38,7 +39,7 @@ export default function LoginPage() {
             const token = response.data.token;
             await AsyncStorage.setItem("token", token);
 
-            router.replace("/(tabs)/account");
+            router.replace("/account");
         } catch {
             Alert.alert("Login failed", "Please check your credentials and try again.");
         }

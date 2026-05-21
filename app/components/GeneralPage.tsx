@@ -11,10 +11,11 @@ import {
     StyleProp,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
+import {Href, Link, useRouter} from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import API from "../services/api";
-import Icon from "react-native-vector-icons/MaterialIcons";
+import LanguageSwitcher from "./LanguageSwitcher";
+import {Ionicons, MaterialCommunityIcons} from "@expo/vector-icons";
 
 type User = {
     name: string;
@@ -31,6 +32,10 @@ type GeneralPageProps = {
     scroll?: boolean;
     contentStyle?: StyleProp<ViewStyle>;
     showUserHeader?: boolean;
+    showLanguageSwitcher?: boolean;
+    showHomeButton?: boolean;
+    showFilterButton?: boolean;
+    filterButtonHref?: Href;
 };
 
 export default function GeneralPage({
@@ -40,7 +45,11 @@ export default function GeneralPage({
     loading = false,
     scroll = true,
     contentStyle,
-    showUserHeader = true,
+    showUserHeader = false,
+    showLanguageSwitcher = false,
+    showHomeButton = true,
+    showFilterButton = false,
+    filterButtonHref = '/',
 }: GeneralPageProps) {
     const router = useRouter();
 
@@ -56,6 +65,7 @@ export default function GeneralPage({
                 const token = await AsyncStorage.getItem("token");
 
                 if (!token) {
+                    router.replace("/login");
                     return;
                 }
 
@@ -67,48 +77,89 @@ export default function GeneralPage({
 
                 setUser(response.data);
             } catch {
-                setUser(null);
+                await AsyncStorage.removeItem("token");
+                router.replace("/login");
             }
         };
 
         void fetchUser();
-    }, [showUserHeader]);
+    }, [showUserHeader, router]);
 
     const openAccountPage = () => {
         router.push("/account");
     };
 
+    const openHomePage = () => {
+        router.push("/");
+    };
+
     const content = (
         <View style={[styles.content, contentStyle]}>
-            {showUserHeader ? (
-                <TouchableOpacity
-                    style={styles.userHeader}
-                    activeOpacity={0.75}
-                    onPress={openAccountPage}
-                >
-                    <View style={styles.userInfo}>
-                        <Text style={styles.userName} numberOfLines={1}>
-                            {user?.name || "User"}
-                        </Text>
-                        {user?.email ? (
-                            <Text style={styles.userEmail} numberOfLines={1}>
-                                {user.email}
-                            </Text>
-                        ) : null}
-                    </View>
+            <View style={styles.topBar}>
+                <View style={styles.topActions}>
+                    {showHomeButton ? (
+                        <TouchableOpacity
+                            style={styles.homeButton}
+                            activeOpacity={0.75}
+                            onPress={openHomePage}
+                        >
+                            <MaterialCommunityIcons
+                                name="home"
+                                size={22}
+                                color="#ffffff"
+                            />
+                            <Text style={styles.homeButtonText}>Home</Text>
+                        </TouchableOpacity>
+                    ) : null}
 
-                    {user?.photo ? (
-                        <Image
-                            source={{ uri: user.photo }}
-                            style={styles.userIcon}
-                        />
-                    ) : (
-                        <View style={styles.userIcon}>
-                            <Icon name="person" size={28} color="#6b7280" />
+                    {showFilterButton ? (
+                        <View style={styles.filterContainer}>
+                            <Link href={filterButtonHref} asChild>
+                                <TouchableOpacity style={styles.filterButton}>
+                                    <Ionicons name="filter" size={20} color="#fff"/>
+                                </TouchableOpacity>
+                            </Link>
                         </View>
-                    )}
-                </TouchableOpacity>
-            ) : null}
+                    ) : null}
+
+                    {showLanguageSwitcher ? (
+                        <LanguageSwitcher />
+                    ) : null}
+                </View>
+
+                {showUserHeader ? (
+                    <TouchableOpacity
+                        style={styles.userHeader}
+                        activeOpacity={0.75}
+                        onPress={openAccountPage}
+                    >
+                        <View style={styles.userInfo}>
+                            <Text style={styles.greeting}>Welcome</Text>
+                            <Text style={styles.userName} numberOfLines={1}>
+                                {user?.name || "User"}
+                            </Text>
+                            {user?.email ? (
+                                <Text style={styles.userEmail} numberOfLines={1}>
+                                    {user.email}
+                                </Text>
+                            ) : null}
+                        </View>
+
+                        {user?.photo ? (
+                            <Image
+                                source={{ uri: user.photo }}
+                                style={styles.userImage}
+                            />
+                        ) : (
+                            <View style={styles.userIcon}>
+                                <Text style={styles.userIconText}>
+                                    {(user?.name || "U").charAt(0).toUpperCase()}
+                                </Text>
+                            </View>
+                        )}
+                    </TouchableOpacity>
+                ) : null}
+            </View>
 
             {title ? <Text style={styles.title}>{title}</Text> : null}
             {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
@@ -151,6 +202,29 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 16,
     },
+    topBar: {
+        marginBottom: 18,
+    },
+    topActions: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        marginBottom: 12,
+    },
+    homeButton: {
+        flexDirection: "row",
+        alignItems: "center",
+        backgroundColor: "#1a73e8",
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        borderRadius: 10,
+    },
+    homeButtonText: {
+        color: "#ffffff",
+        fontSize: 14,
+        fontWeight: "600",
+        marginLeft: 6,
+    },
     userHeader: {
         flexDirection: "row",
         alignItems: "center",
@@ -158,7 +232,7 @@ const styles = StyleSheet.create({
         backgroundColor: "#ffffff",
         borderRadius: 16,
         padding: 14,
-        marginBottom: 18,
+        marginBottom: 12,
         shadowColor: "#000",
         shadowOffset: {
             width: 0,
@@ -189,6 +263,12 @@ const styles = StyleSheet.create({
         color: "#6b7280",
         marginTop: 2,
     },
+    userImage: {
+        width: 48,
+        height: 48,
+        borderRadius: 24,
+        backgroundColor: "#e5e7eb",
+    },
     userIcon: {
         width: 48,
         height: 48,
@@ -196,6 +276,14 @@ const styles = StyleSheet.create({
         backgroundColor: "#e5e7eb",
         alignItems: "center",
         justifyContent: "center",
+    },
+    userIconText: {
+        fontSize: 20,
+        fontWeight: "700",
+        color: "#1a73e8",
+    },
+    languageSwitcherWrapper: {
+        alignItems: "flex-end",
     },
     title: {
         fontSize: 24,
@@ -213,5 +301,15 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
         paddingVertical: 40,
+    },
+    filterContainer: {
+        alignItems: 'flex-end',
+        marginBottom: 10,
+    },
+    filterButton: {
+        marginTop: 8,
+        backgroundColor: '#007AFF',
+        padding: 10,
+        borderRadius: 8,
     },
 });

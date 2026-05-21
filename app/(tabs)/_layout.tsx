@@ -36,15 +36,6 @@ export default function TabLayout() {
                 }}
             />
             <Tabs.Screen
-                name="account"
-                options={{
-                    title: 'Իմ Էջը',
-                    tabBarIcon: ({ color, focused }) => (
-                        <Ionicons name={focused ? 'card-account-details' : 'card-account-details-outline'} color={color} size={24}/>
-                    ),
-                }}
-            />
-            <Tabs.Screen
                 name="notification"
                 options={{
                     title: 'Ծանուցումներ',

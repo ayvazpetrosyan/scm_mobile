@@ -6,9 +6,11 @@ import {
     Platform,
     TouchableOpacity,
 } from 'react-native';
-import { Link, useLocalSearchParams, type Href } from "expo-router";
-import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
-import React, { useMemo } from 'react';
+import {Link, useLocalSearchParams, type Href, Stack} from "expo-router";
+import {Ionicons} from '@expo/vector-icons';
+import React, {useMemo} from 'react';
+import {useTranslation} from "react-i18next";
+import GeneralPage from "@/app/components/GeneralPage";
 
 type Task = {
     id: string;
@@ -18,14 +20,14 @@ type Task = {
 };
 
 const TASKS: Task[] = [
-    { id: '1', title: 'Buy groceries', date: '2025-10-02', href: '/task/1' },
-    { id: '2', title: 'Finish project', date: '2025-10-25', href: '/task/2' },
-    { id: '3', title: 'Visit dentist', date: '2025-10-15', href: '/task/3' },
-    { id: '4', title: 'Call client 4', date: '2025-09-03', href: '/task/4' },
-    { id: '5', title: 'Call client 5', date: '2025-09-03', href: '/task/5' },
-    { id: '6', title: 'Call client 6', date: '2025-10-03', href: '/task/6' },
-    { id: '7', title: 'Call client 7', date: '2025-10-03', href: '/task/7' },
-    { id: '8', title: 'Call client 8', date: '2025-09-03', href: '/task/8' },
+    {id: '1', title: 'Buy groceries', date: '2025-10-02', href: '/task/1'},
+    {id: '2', title: 'Finish project', date: '2025-10-25', href: '/task/2'},
+    {id: '3', title: 'Visit dentist', date: '2025-10-15', href: '/task/3'},
+    {id: '4', title: 'Call client 4', date: '2025-09-03', href: '/task/4'},
+    {id: '5', title: 'Call client 5', date: '2025-09-03', href: '/task/5'},
+    {id: '6', title: 'Call client 6', date: '2025-10-03', href: '/task/6'},
+    {id: '7', title: 'Call client 7', date: '2025-10-03', href: '/task/7'},
+    {id: '8', title: 'Call client 8', date: '2025-09-03', href: '/task/8'},
 ];
 
 const sortTasksByMonth = (tasks: Task[]) => {
@@ -41,7 +43,7 @@ const getMonthFromDate = (dateString: string | number | Date) => {
 };
 
 export default function TaskListPage() {
-    const { month } = useLocalSearchParams();
+    const {month} = useLocalSearchParams();
 
     const selectedMonth = month ? Number(month) - 1 : null;
 
@@ -51,48 +53,30 @@ export default function TaskListPage() {
 
     const sortedTasks = useMemo(() => sortTasksByMonth(filteredTasks), [filteredTasks]);
 
+    const {t} = useTranslation();
+
     return (
-        <View style={styles.container}>
-            <View style={styles.header}>
-                <View style={styles.filterContainer}>
-                    <Link href="/task/filter" asChild>
-                        <TouchableOpacity style={styles.filterButton}>
-                            <Ionicons name="filter" size={20} color="#fff" />
-                        </TouchableOpacity>
-                    </Link>
+        <>
+            <Stack.Screen options={{ title: t('Schedule') }} />
+
+            <GeneralPage showHomeButton={true} showFilterButton={true} filterButtonHref={'/task/filter'}>
+                <View style={styles.container}>
+                    <FlatList
+                        data={sortedTasks}
+                        keyExtractor={(item) => item.id}
+                        renderItem={({item}) => (
+                            <Link href={item.href} style={styles.task}>
+                                <View>
+                                    <Text style={styles.taskTitle}>{item.title}</Text>
+                                    <Text style={styles.taskDate}>{item.date}</Text>
+                                </View>
+                            </Link>
+                        )}
+                        ListEmptyComponent={<Text style={styles.noTasks}>No tasks this month.</Text>}
+                    />
                 </View>
-            </View>
-
-            <FlatList
-                data={sortedTasks}
-                keyExtractor={(item) => item.id}
-                renderItem={({ item }) => (
-                    <Link href={item.href} style={styles.task}>
-                        <View>
-                            <Text style={styles.taskTitle}>{item.title}</Text>
-                            <Text style={styles.taskDate}>{item.date}</Text>
-                        </View>
-                    </Link>
-                )}
-                ListEmptyComponent={<Text style={styles.noTasks}>No tasks this month.</Text>}
-            />
-
-            <View style={styles.bottomNav}>
-                <Link href="/" asChild>
-                    <TouchableOpacity style={styles.navItem}>
-                        <MaterialCommunityIcons name="home" size={24} color="#1a73e8" />
-                        <Text style={styles.navText}>Home</Text>
-                    </TouchableOpacity>
-                </Link>
-
-                <Link href="/(tabs)/notification" asChild>
-                    <TouchableOpacity style={styles.navItem}>
-                        <MaterialCommunityIcons name="bell-outline" size={24} color="#1a73e8" />
-                        <Text style={styles.navText}>Notification</Text>
-                    </TouchableOpacity>
-                </Link>
-            </View>
-        </View>
+            </GeneralPage>
+        </>
     );
 }
 
@@ -106,16 +90,6 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: '#ddd',
         marginBottom: 5,
-    },
-    filterContainer: {
-        alignItems: 'flex-end',
-        marginBottom: 10,
-    },
-    filterButton: {
-        marginTop: 8,
-        backgroundColor: '#007AFF',
-        padding: 10,
-        borderRadius: 8,
     },
     heading: {
         fontSize: 24,
@@ -138,7 +112,7 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         marginBottom: 10,
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: {width: 0, height: 2},
         shadowOpacity: 0.1,
         shadowRadius: 4,
         elevation: 3,

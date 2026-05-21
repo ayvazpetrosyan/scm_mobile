@@ -12,7 +12,8 @@ import {
 import { useRouter } from "expo-router";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import axios from "axios";
+import API from "@/app/services/api";
+import GeneralPage from "@/app/components/GeneralPage";
 
 type User = {
     name: string;
@@ -37,7 +38,7 @@ export default function AccountPage() {
                     return;
                 }
 
-                const response = await axios.get("http://laravel_auth.loc/api/user", {
+                const response = await API.get("/user", {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -77,27 +78,29 @@ export default function AccountPage() {
     }
 
     return (
-        <ScrollView contentContainerStyle={styles.container}>
-            <Image
-                source={{
-                    uri: user.photo || "https://via.placeholder.com/100",
-                }}
-                style={styles.profileImage}
-            />
+        <GeneralPage title="Account" showUserHeader={false} showLanguageSwitcher={true}>
+            <ScrollView contentContainerStyle={styles.container}>
+                <Image
+                    source={{
+                        uri: user.photo || "https://via.placeholder.com/100",
+                    }}
+                    style={styles.profileImage}
+                />
 
-            <View style={styles.infoContainer}>
-                <InfoRow icon="person" label="Name" value={user.name} />
-                <InfoRow icon="email" label="Email" value={user.email} />
-                <InfoRow icon="phone" label="Phone" value={user.phone || "-"} />
-            </View>
+                <View style={styles.infoContainer}>
+                    <InfoRow icon="person" label="Name" value={user.name} />
+                    <InfoRow icon="email" label="Email" value={user.email} />
+                    <InfoRow icon="phone" label="Phone" value={user.phone || "-"} />
+                </View>
 
-            <View style={styles.buttonContainer}>
-                <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-                    <Icon name="logout" size={20} color="#fff" />
-                    <Text style={styles.buttonText}>Logout</Text>
-                </TouchableOpacity>
-            </View>
-        </ScrollView>
+                <View style={styles.buttonContainer}>
+                    <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+                        <Icon name="logout" size={20} color="#fff" />
+                        <Text style={styles.buttonText}>Logout</Text>
+                    </TouchableOpacity>
+                </View>
+            </ScrollView>
+        </GeneralPage>
     );
 }
 

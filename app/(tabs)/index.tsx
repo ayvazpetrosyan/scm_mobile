@@ -1,12 +1,9 @@
-import React, {useEffect, useState} from 'react';
 import {StyleSheet, Text, View, StatusBar, FlatList, Alert} from 'react-native';
 import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
-import {Link, type Href, useRouter} from 'expo-router';
+import {Link, type Href} from 'expo-router';
 import {MaterialCommunityIcons} from '@expo/vector-icons';
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import axios from "axios";
-import API from '../services/api';
 import GeneralPage from "@/app/components/GeneralPage";
+import React from "react";
 
 type MenuItem = {
     key: string;
@@ -15,59 +12,21 @@ type MenuItem = {
     icon: React.ComponentProps<typeof MaterialCommunityIcons>['name'];
 };
 
-type User = {
-    name: string;
-    email: string;
-    phone?: string;
-    photo?: string;
-};
-
 const DATA: MenuItem[] = [
-    {key: 'schedule', title: 'Դասացուցակ', href: '/schedule/index', icon: 'calendar-month'},
-    {key: 'journal', title: 'Մատյան', href: '/journal/index', icon: 'book-open-page-variant'},
-    {key: 'task', title: 'Առաջադրանք', href: '/task/index', icon: 'clipboard-check-outline'},
-    {key: 'semester', title: 'Առաջադիմություն', href: '/semester/index', icon: 'chart-bar'},
-    {key: 'absent', title: 'Բացակայություն', href: '/absent/index', icon: 'account-off'},
-    {key: 'finance', title: 'ֆինանսներ', href: '/canteen/index', icon: 'finance'},
-    {key: 'transport', title: 'Տրանսպորտ', href: '/canteen/index', icon: 'bus'},
-    {key: 'canteen', title: 'Ճաշարան', href: '/canteen/index', icon: 'silverware-fork-knife'},
+    {key: 'schedule', title: 'Դասացուցակ', href: '/schedule', icon: 'calendar-month'},
+    {key: 'journal', title: 'Մատյան', href: '/journal', icon: 'book-open-page-variant'},
+    {key: 'task', title: 'Առաջադրանք', href: '/task', icon: 'clipboard-check-outline'},
+    {key: 'semester', title: 'Առաջադիմություն', href: '/semester', icon: 'chart-bar'},
+    {key: 'absent', title: 'Բացակայություն', href: '/absent', icon: 'account-off'},
+    {key: 'finance', title: 'ֆինանսներ', href: '/finance', icon: 'finance'},
+    {key: 'transport', title: 'Տրանսպորտ', href: '/transport', icon: 'bus'},
+    {key: 'canteen', title: 'Ճաշարան', href: '/canteen', icon: 'silverware-fork-knife'},
 ];
 
 const App = () => {
-    const router = useRouter();
-
-    const [user, setUser] = useState<User | null>(null);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                const token = await AsyncStorage.getItem("token");
-
-                if (!token) {
-                    router.replace("/login");
-                    return;
-                }
-
-                const response = await axios.get('http://laravel_auth.loc/api/home', {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                setUser(response.data);
-            } catch {
-                router.replace("/login");
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        void fetchUser();
-    }, [router]);
 
     return (
-        <GeneralPage title={'Home'}>
+        <GeneralPage showHomeButton={false} showUserHeader={true}>
             <SafeAreaProvider>
                 <SafeAreaView style={styles.container} edges={['top']}>
                     <FlatList
