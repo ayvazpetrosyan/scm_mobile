@@ -1,4 +1,4 @@
-import {StyleSheet, Text, View, StatusBar, FlatList, Alert} from 'react-native';
+import {StyleSheet, Text, View, StatusBar, FlatList} from 'react-native';
 import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
 import {Link, type Href} from 'expo-router';
 import {MaterialCommunityIcons} from '@expo/vector-icons';
@@ -24,7 +24,6 @@ const DATA: MenuItem[] = [
 ];
 
 const App = () => {
-
     return (
         <GeneralPage showHomeButton={false} showUserHeader={true}>
             <SafeAreaProvider>

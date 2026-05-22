@@ -11,7 +11,6 @@ import {
 } from "react-native";
 import {useRouter} from "expo-router";
 import Icon from "react-native-vector-icons/MaterialIcons";
-import axios from "axios";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Api from "@/app/services/api";
 

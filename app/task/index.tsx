@@ -4,13 +4,14 @@ import {
     FlatList,
     StyleSheet,
     Platform,
-    TouchableOpacity,
 } from 'react-native';
-import {Link, useLocalSearchParams, type Href, Stack} from "expo-router";
-import {Ionicons} from '@expo/vector-icons';
-import React, {useMemo} from 'react';
+import {Link, useLocalSearchParams, type Href, Stack, router} from "expo-router";
+import React, {useEffect, useMemo, useState} from 'react';
 import {useTranslation} from "react-i18next";
 import GeneralPage from "@/app/components/GeneralPage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import API from "@/app/services/api";
+import Filter, { FilterValues } from "@/app/components/filter/index";
 
 type Task = {
     id: string;
@@ -45,22 +46,62 @@ const getMonthFromDate = (dateString: string | number | Date) => {
 export default function TaskListPage() {
     const {month} = useLocalSearchParams();
 
-    const selectedMonth = month ? Number(month) - 1 : null;
+    const selectedMonth = month ? Number(month) : null;
 
-    const filteredTasks = selectedMonth === null
-        ? TASKS // show all tasks if no month is provided
-        : TASKS.filter((task) => getMonthFromDate(task.date) === selectedMonth);
+    const [filters, setFilters] = useState<FilterValues>({
+        studyYear: "",
+        month: selectedMonth === null ? "" : String(selectedMonth),
+        className: "",
+        subject: "",
+    });
+
+    const filteredTasks = filters.month === ""
+        ? TASKS
+        : TASKS.filter((task) => getMonthFromDate(task.date) === Number(filters.month));
 
     const sortedTasks = useMemo(() => sortTasksByMonth(filteredTasks), [filteredTasks]);
 
     const {t} = useTranslation();
 
+    useEffect(() => {
+        const fetchTasks = async () => {
+            try {
+                const token = await AsyncStorage.getItem("token");
+
+                if (!token) {
+                    router.replace("/login");
+                    return;
+                }
+
+                const response = await API.get("/task", {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                    params: {
+                        studyYear: filters.studyYear || undefined,
+                        monthNumber: filters.month === "" ? undefined : Number(filters.month),
+                        class: filters.className || undefined,
+                        subject: filters.subject || undefined,
+                    },
+                });
+
+                console.log('response response response', response.data)
+            } catch (error) {
+                console.error('Error in TaskListPage useEffect:', error);
+            }
+        };
+
+        void fetchTasks();
+    }, [filters]);
+
     return (
         <>
-            <Stack.Screen options={{ title: t('Schedule') }} />
+            <Stack.Screen options={{ title: t('Tasks') }} />
 
-            <GeneralPage showHomeButton={true} showFilterButton={true} filterButtonHref={'/task/filter'}>
+            <GeneralPage showHomeButton={true} showFilterButton={true} filterButtonHref={'/task/filter/month'}>
                 <View style={styles.container}>
+                    <Filter values={filters} onChange={setFilters} />
+
                     <FlatList
                         data={sortedTasks}
                         keyExtractor={(item) => item.id}

@@ -56,10 +56,6 @@ export default function GeneralPage({
     const [user, setUser] = useState<User | null>(null);
 
     useEffect(() => {
-        if (!showUserHeader) {
-            return;
-        }
-
         const fetchUser = async () => {
             try {
                 const token = await AsyncStorage.getItem("token");
