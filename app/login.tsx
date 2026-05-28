@@ -13,8 +13,11 @@ import {useRouter} from "expo-router";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Api from "@/app/services/api";
+import {useTranslation} from "react-i18next";
 
 export default function LoginPage() {
+    const {t} = useTranslation();
+
     const router = useRouter();
 
     const [email, setEmail] = useState("");
@@ -83,11 +86,11 @@ export default function LoginPage() {
                 </View>
 
                 <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-                    <Text style={styles.loginButtonText}>Login</Text>
+                    <Text style={styles.loginButtonText}>{t('Login')}</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity onPress={() => router.back()}>
-                    <Text style={styles.backText}>Go back</Text>
+                    <Text style={styles.backText}>{t('Go back')}</Text>
                 </TouchableOpacity>
             </View>
         </KeyboardAvoidingView>

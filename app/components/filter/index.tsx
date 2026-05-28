@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useCallback} from 'react';
 import {
     FlatList,
     Modal,
@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import {useTranslation} from "react-i18next";
 import API from "@/app/services/api";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type FilterGeneralType = {
     id: string;
@@ -203,21 +204,22 @@ export function Filter<TPageData>({
 
     const errors: Partial<Record<keyof typeof data, string>> = {};
 
-    const setData = <K extends keyof typeof data>(key: K, value: typeof data[K]) => {
+    const setData = useCallback(<K extends keyof typeof data>(key: K, value: typeof data[K]) => {
         setFormData((previousData) => ({
             ...previousData,
             [key]: value,
         }));
-    };
+    }, []);
 
     const getPreSelectedId = (items: FilterGeneralType[]) => {
         return items.find((item) => item.preSelected)?.id ?? null;
     };
 
-    const getData = (updated: Partial<typeof data>) => {
+    const getData = useCallback(async (updated: Partial<typeof data>) => {
         if (!pageDataRoute || !setPageDataLoading || !setPageDataError || !setPageData) {
             return;
         }
+        const token = await AsyncStorage.getItem("token");
 
         const payload = {
             semesterId: updated.semesterId ?? data.semesterId ?? null,
@@ -231,7 +233,10 @@ export function Filter<TPageData>({
         setPageDataError(null);
         setPageData(emptyPageData);
 
-        API.post(pageDataRoute, payload)
+        API.get(pageDataRoute, {
+            headers: {Authorization: `Bearer ${token}`},
+            params: payload,
+        })
             .then((response) => {
                 response.data.subjectId = payload.subjectId;
                 setPageData(response.data);
@@ -243,98 +248,72 @@ export function Filter<TPageData>({
             .finally(() => {
                 setPageDataLoading(false);
             });
-    };
+    }, [data.classId, data.monthId, data.semesterId, data.studentId, data.subjectId, emptyPageData, pageDataRoute, setPageData, setPageDataError, setPageDataLoading]);
 
-    const getSubjectsByCLass = (classId: string | null) => {
+    const getSubjectsByCLass = useCallback((classId: string | null) => {
         if (!classId) {
             setSubjectData([]);
             setData('subjectId', null);
             return;
         }
 
-        API.post('/filter/subject/by/class', {classId})
-            .then((response) => {
-                setSubjectData(response.data);
-            })
-            .catch((err) => {
-                console.error('Error fetching subjects:', err);
-            });
-    };
+        sendApiRequest('/filter/subject/by/class', setSubjectData, {'classId': classId}).then(r => console.log('Subjects by class filter load result: ', r));
+    }, [setData]);
 
-    const getStudentsByClass = (classId: string | null) => {
+    const getStudentsByClass = useCallback((classId: string | null) => {
         if (!classId) {
             setStudentData([]);
             setData('studentId', null);
             return;
         }
 
-        API.post('/filter/student/by/class', {classId})
-            .then((response) => {
-                setStudentData(response.data);
-            })
-            .catch((err) => {
-                console.error('Error fetching students:', err);
-            });
-    };
+        sendApiRequest('/filter/student/by/class', setStudentData, {'classId': classId}).then(r => console.log('Students by class filter load result: ', r));
+    }, [setData]);
 
-    const getSubjectsByCurrentUser = () => {
-        API
-            .post('/filter/subject/by/user', {})
-            .then((response) => {
-                setSubjectData(response.data);
-            })
-            .catch((err) => {
-                console.error('Error fetching subjects:', err);
-            });
-    };
-
-    const getSubjectsByCurrentUserAndCLass = (classId: string | null) => {
+    const getSubjectsByCurrentUserAndCLass = useCallback((classId: string | null) => {
         if (!classId) {
             setSubjectData([]);
             setData('subjectId', null);
             return;
         }
 
-        API
-            .post('/filter/subject/by/user-and-class', {classId})
-            .then((response) => {
-                setSubjectData(response.data);
-            })
-            .catch((err) => {
-                console.error('Error fetching subjects:', err);
-            });
-    };
+        sendApiRequest('/filter/subject/by/user-and-class', setSubjectData, {'classId': classId}).then(r => console.log('Subjects by user and class filter load result: ', r));
+    }, [setData]);
+
+    const sendApiRequest = async (
+        url: string,
+        callBackFunction: (value: (((prevState: FilterGeneralType[]) => FilterGeneralType[]) | FilterGeneralType[])) => void,
+        payload: any = {},
+    ) => {
+        const token = await AsyncStorage.getItem("token");
+        payload.headers = {Authorization: `Bearer ${token}`}
+        await API
+            .get(url, payload)
+            .then((res) => callBackFunction(res.data))
+            .catch((err) => console.error('Error sending API request:', err));
+    }
 
     useEffect(() => {
         if (filters.semester) {
-            API
-                .post('/filter/semester')
-                .then((res) => setSemesterData(res.data))
-                .catch((err) => console.error('Error fetching semesters:', err));
+            sendApiRequest('/filter/semester', setSemesterData).then(r => console.log('Semester filter load result: ', r));
         }
     }, [filters.semester]);
 
     useEffect(() => {
         if (filters.month) {
-            API
-                .post('/filter/month')
-                .then((res) => setMonthData(res.data))
-                .catch((err) => console.error('Error fetching months:', err));
+            sendApiRequest('/filter/month', setMonthData).then(r => console.log('Month filter load result: ', r));
         }
     }, [filters.month]);
 
     useEffect(() => {
         if (filters.scmClass || filters.subjectByUser || filters.subjectByUserAndClass) {
-            API
-                .post('/filter/class')
-                .then((res) => setClassData(res.data))
-                .catch((err) => console.error('Error fetching classes:', err));
+            sendApiRequest('/filter/class', setClassData).then(r => console.log('Class filter load result: ', r));
         }
     }, [filters.scmClass, filters.subjectByUser, filters.subjectByUserAndClass]);
 
     useEffect(() => {
         if (filters.subjectByUser) {
-            getSubjectsByCurrentUser();
+            sendApiRequest('/filter/subject/by/user', setSubjectData).then(r => console.log('subjectByUser filter load result: ', r));
         }
     }, [filters.subjectByUser]);
 
@@ -347,7 +326,7 @@ export function Filter<TPageData>({
 
         setData('semesterId', semesterId);
         getData({...data, semesterId});
-    }, [semesterData]);
+    }, [data, getData, semesterData, setData]);
 
     useEffect(() => {
         const monthId = getPreSelectedId(monthData);
@@ -358,7 +337,7 @@ export function Filter<TPageData>({
 
         setData('monthId', monthId);
         getData({...data, monthId});
-    }, [monthData]);
+    }, [data, getData, monthData, setData]);
 
     useEffect(() => {
         const classId = getPreSelectedId(classData);
@@ -382,7 +361,7 @@ export function Filter<TPageData>({
         }
 
         getData({...data, classId});
-    }, [classData]);
+    }, [classData, data, filters.studentByClass, filters.subject, filters.subjectByUserAndClass, getData, getStudentsByClass, getSubjectsByCLass, getSubjectsByCurrentUserAndCLass, setData]);
 
     useEffect(() => {
         const subjectId = getPreSelectedId(subjectData);
@@ -393,7 +372,7 @@ export function Filter<TPageData>({
 
         setData('subjectId', subjectId);
         getData({...data, subjectId});
-    }, [subjectData]);
+    }, [data, getData, setData, subjectData]);
 
     useEffect(() => {
         const studentId = getPreSelectedId(studentData);
@@ -404,211 +383,211 @@ export function Filter<TPageData>({
 
         setData('studentId', studentId);
         getData({...data, studentId});
-    }, [studentData]);
+    }, [data, getData, setData, studentData]);
 
-        return (
-            <View style={filterStyles.container}>
-                {/* Semester filter */}
-                {filters.semester && (
-                    <View style={filterStyles.field}>
-                        <Text style={filterStyles.label}>{t('Semester')}</Text>
-                        <Select
-                            className={'z-[55]'}
-                            value={
-                                data.semesterId
-                                    ? {
-                                        value: data.semesterId,
-                                        label: semesterData.find((semester) => semester.id === data.semesterId)?.title ?? '',
-                                    }
-                                    : null
-                            }
-                            options={semesterData.map((semester) => ({
-                                value: semester.id,
-                                label: semester.title ?? '',
-                            }))}
-                            placeholder={t('Select semester')}
-                            onChange={(option) => {
-                                const value = option ? option.value : null;
-                                setData('semesterId', value);
-                                getData({...data, semesterId: value});
-                            }}
-                        />
-                        {errors.semesterId ? (
-                            <Text style={filterStyles.errorText}>{errors.semesterId}</Text>
-                        ) : null}
-                    </View>
-                )}
-
-                {/* Month filter */}
-                {filters.month && (
-                    <View style={filterStyles.field}>
-                        <Text style={filterStyles.label}>{t('Month')}</Text>
-                        <Select
-                            className={'z-[50]'}
-                            value={
-                                data.monthId
-                                    ? {
-                                        value: data.monthId,
-                                        label: monthData.find((month) => month.id === data.monthId)?.title ?? '',
-                                    }
-                                    : null
-                            }
-                            options={monthData.map((month) => ({
-                                value: month.id,
-                                label: month.title ?? '',
-                            }))}
-                            placeholder={t('Select month')}
-                            onChange={(option) => {
-                                const value = option ? option.value : null;
-                                setData('monthId', value);
-                                getData({...data, monthId: value});
-                            }}
-                        />
-                        {errors.monthId ? (
-                            <Text style={filterStyles.errorText}>{errors.monthId}</Text>
-                        ) : null}
-                    </View>
-                )}
-
-                {/* Class filter */}
-                {filters.scmClass && (
-                    <View style={filterStyles.field}>
-                        <Text style={filterStyles.label}>{t('Class')}</Text>
-                        <Select
-                            className={'z-[45]'}
-                            value={
-                                data.classId
-                                    ? {
-                                        value: data.classId,
-                                        label: classData.find((scmClass) => scmClass.id === data.classId)?.title ?? '',
-                                    }
-                                    : null
-                            }
-                            options={classData.map((scmClass) => ({
-                                value: scmClass.id,
-                                label: scmClass.title ?? '',
-                            }))}
-                            placeholder={t('Select class')}
-                            onChange={(option) => {
-                                const value = option ? option.value : null;
-                                setData('classId', value);
-
-                                if (filters.subject) {
-                                    setData('subjectId', null);
-                                    getSubjectsByCLass(value);
+    return (
+        <View style={filterStyles.container}>
+            {/* Semester filter */}
+            {filters.semester && (
+                <View style={filterStyles.field}>
+                    <Text style={filterStyles.label}>{t('Semester')}</Text>
+                    <Select
+                        className={'z-[55]'}
+                        value={
+                            data.semesterId
+                                ? {
+                                    value: data.semesterId,
+                                    label: semesterData.find((semester) => semester.id === data.semesterId)?.title ?? '',
                                 }
+                                : null
+                        }
+                        options={semesterData.map((semester) => ({
+                            value: semester.id,
+                            label: semester.title ?? '',
+                        }))}
+                        placeholder={t('Select semester')}
+                        onChange={(option) => {
+                            const value = option ? option.value : null;
+                            setData('semesterId', value);
+                            getData({...data, semesterId: value});
+                        }}
+                    />
+                    {errors.semesterId ? (
+                        <Text style={filterStyles.errorText}>{errors.semesterId}</Text>
+                    ) : null}
+                </View>
+            )}
 
-                                if (filters.studentByClass) {
-                                    setData('studentId', null);
-                                    getStudentsByClass(value);
+            {/* Month filter */}
+            {filters.month && (
+                <View style={filterStyles.field}>
+                    <Text style={filterStyles.label}>{t('Month')}</Text>
+                    <Select
+                        className={'z-[50]'}
+                        value={
+                            data.monthId
+                                ? {
+                                    value: data.monthId,
+                                    label: monthData.find((month) => month.id === data.monthId)?.title ?? '',
                                 }
+                                : null
+                        }
+                        options={monthData.map((month) => ({
+                            value: month.id,
+                            label: month.title ?? '',
+                        }))}
+                        placeholder={t('Select month')}
+                        onChange={(option) => {
+                            const value = option ? option.value : null;
+                            setData('monthId', value);
+                            getData({...data, monthId: value});
+                        }}
+                    />
+                    {errors.monthId ? (
+                        <Text style={filterStyles.errorText}>{errors.monthId}</Text>
+                    ) : null}
+                </View>
+            )}
 
-                                getData({...data, classId: value, subjectId: null, studentId: null});
-                            }}
-                        />
-                        {errors.classId ? (
-                            <Text style={filterStyles.errorText}>{errors.classId}</Text>
-                        ) : null}
-                    </View>
-                )}
+            {/* Class filter */}
+            {filters.scmClass && (
+                <View style={filterStyles.field}>
+                    <Text style={filterStyles.label}>{t('Class')}</Text>
+                    <Select
+                        className={'z-[45]'}
+                        value={
+                            data.classId
+                                ? {
+                                    value: data.classId,
+                                    label: classData.find((scmClass) => scmClass.id === data.classId)?.title ?? '',
+                                }
+                                : null
+                        }
+                        options={classData.map((scmClass) => ({
+                            value: scmClass.id,
+                            label: scmClass.title ?? '',
+                        }))}
+                        placeholder={t('Select class')}
+                        onChange={(option) => {
+                            const value = option ? option.value : null;
+                            setData('classId', value);
 
-                {/* Subject by user and class filter */}
-                {filters.subjectByUserAndClass && (
-                    <View style={filterStyles.field}>
-                        <Text style={filterStyles.label}>{t('Class')}</Text>
-                        <Select
-                            className={'z-[45]'}
-                            value={
-                                data.classId
-                                    ? {
-                                        value: data.classId,
-                                        label: classData.find((scmClass) => scmClass.id === data.classId)?.title ?? '',
-                                    }
-                                    : null
-                            }
-                            options={classData.map((scmClass) => ({
-                                value: scmClass.id,
-                                label: scmClass.title ?? '',
-                            }))}
-                            placeholder={t('Select class')}
-                            onChange={(option) => {
-                                const value = option ? option.value : null;
-                                setData('classId', value);
+                            if (filters.subject) {
                                 setData('subjectId', null);
-                                getSubjectsByCurrentUserAndCLass(value);
-                                getData({...data, classId: value, subjectId: null});
-                            }}
-                        />
-                        {errors.classId ? (
-                            <Text style={filterStyles.errorText}>{errors.classId}</Text>
-                        ) : null}
-                    </View>
-                )}
-
-                {/* Subject filter */}
-                {subjectData.length > 0 && (
-                    <View style={filterStyles.field}>
-                        <Text style={filterStyles.label}>{t('Subject')}</Text>
-                        <Select
-                            className={'z-[40]'}
-                            value={
-                                data.subjectId
-                                    ? {
-                                        value: data.subjectId,
-                                        label: subjectData.find((subject) => subject.id === data.subjectId)?.title ?? '',
-                                    }
-                                    : null
+                                getSubjectsByCLass(value);
                             }
-                            options={subjectData.map((subject) => ({
-                                value: subject.id,
-                                label: subject.title ?? '',
-                            }))}
-                            placeholder={t('Select subject')}
-                            onChange={(option) => {
-                                const value = option ? option.value : null;
-                                setData('subjectId', value);
-                                getData({...data, subjectId: value});
-                            }}
-                        />
-                        {errors.subjectId ? (
-                            <Text style={filterStyles.errorText}>{errors.subjectId}</Text>
-                        ) : null}
-                    </View>
-                )}
 
-                {/* Student by class filter */}
-                {filters.studentByClass && (
-                    <View style={filterStyles.field}>
-                        <Text style={filterStyles.label}>{t('Student')}</Text>
-                        <Select
-                            className={'z-[45]'}
-                            value={
-                                data.studentId
-                                    ? {
-                                        value: data.studentId,
-                                        label: studentData.find((student) => student.id === data.studentId)?.title ?? '',
-                                    }
-                                    : null
+                            if (filters.studentByClass) {
+                                setData('studentId', null);
+                                getStudentsByClass(value);
                             }
-                            options={studentData.map((student) => ({
-                                value: student.id,
-                                label: student.title ?? '',
-                            }))}
-                            placeholder={t('Select student')}
-                            onChange={(option) => {
-                                const value = option ? option.value : null;
-                                setData('studentId', value);
-                                getData({...data, studentId: value});
-                            }}
-                        />
-                        {errors.studentId ? (
-                            <Text style={filterStyles.errorText}>{errors.studentId}</Text>
-                        ) : null}
-                    </View>
-                )}
-            </View>
-        );
-    }
+
+                            getData({...data, classId: value, subjectId: null, studentId: null});
+                        }}
+                    />
+                    {errors.classId ? (
+                        <Text style={filterStyles.errorText}>{errors.classId}</Text>
+                    ) : null}
+                </View>
+            )}
+
+            {/* Subject by user and class filter */}
+            {filters.subjectByUserAndClass && (
+                <View style={filterStyles.field}>
+                    <Text style={filterStyles.label}>{t('Class')}</Text>
+                    <Select
+                        className={'z-[45]'}
+                        value={
+                            data.classId
+                                ? {
+                                    value: data.classId,
+                                    label: classData.find((scmClass) => scmClass.id === data.classId)?.title ?? '',
+                                }
+                                : null
+                        }
+                        options={classData.map((scmClass) => ({
+                            value: scmClass.id,
+                            label: scmClass.title ?? '',
+                        }))}
+                        placeholder={t('Select class')}
+                        onChange={(option) => {
+                            const value = option ? option.value : null;
+                            setData('classId', value);
+                            setData('subjectId', null);
+                            getSubjectsByCurrentUserAndCLass(value);
+                            getData({...data, classId: value, subjectId: null});
+                        }}
+                    />
+                    {errors.classId ? (
+                        <Text style={filterStyles.errorText}>{errors.classId}</Text>
+                    ) : null}
+                </View>
+            )}
+
+            {/* Subject filter */}
+            {subjectData.length > 0 && (
+                <View style={filterStyles.field}>
+                    <Text style={filterStyles.label}>{t('Subject')}</Text>
+                    <Select
+                        className={'z-[40]'}
+                        value={
+                            data.subjectId
+                                ? {
+                                    value: data.subjectId,
+                                    label: subjectData.find((subject) => subject.id === data.subjectId)?.title ?? '',
+                                }
+                                : null
+                        }
+                        options={subjectData.map((subject) => ({
+                            value: subject.id,
+                            label: subject.title ?? '',
+                        }))}
+                        placeholder={t('Select subject')}
+                        onChange={(option) => {
+                            const value = option ? option.value : null;
+                            setData('subjectId', value);
+                            getData({...data, subjectId: value});
+                        }}
+                    />
+                    {errors.subjectId ? (
+                        <Text style={filterStyles.errorText}>{errors.subjectId}</Text>
+                    ) : null}
+                </View>
+            )}
+
+            {/* Student by class filter */}
+            {filters.studentByClass && (
+                <View style={filterStyles.field}>
+                    <Text style={filterStyles.label}>{t('Student')}</Text>
+                    <Select
+                        className={'z-[45]'}
+                        value={
+                            data.studentId
+                                ? {
+                                    value: data.studentId,
+                                    label: studentData.find((student) => student.id === data.studentId)?.title ?? '',
+                                }
+                                : null
+                        }
+                        options={studentData.map((student) => ({
+                            value: student.id,
+                            label: student.title ?? '',
+                        }))}
+                        placeholder={t('Select student')}
+                        onChange={(option) => {
+                            const value = option ? option.value : null;
+                            setData('studentId', value);
+                            getData({...data, studentId: value});
+                        }}
+                    />
+                    {errors.studentId ? (
+                        <Text style={filterStyles.errorText}>{errors.studentId}</Text>
+                    ) : null}
+                </View>
+            )}
+        </View>
+    );
+}
 
 const filterStyles = StyleSheet.create({
     container: {
