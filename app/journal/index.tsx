@@ -16,7 +16,12 @@ type JournalRowType = {
     [key: string]: string;
 };
 
-type JournalApiResponseType = Record<string, Omit<JournalRowType, 'id'>>;
+type JournalApiRowType = {
+    subjects: string;
+    [key: string]: string;
+};
+
+type JournalApiResponseType = Record<string, JournalApiRowType>;
 
 export default function Journal() {
     const {t} = useTranslation();
