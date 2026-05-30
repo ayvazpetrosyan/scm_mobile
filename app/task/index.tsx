@@ -24,7 +24,6 @@ type TaskRowType = {
 type TaskType = TaskRowType[];
 
 export default function TaskListPage() {
-
     const {t} = useTranslation();
 
     const [taskData, setTaskData] = useState<TaskType>([]);
@@ -35,7 +34,8 @@ export default function TaskListPage() {
         <>
             <Stack.Screen options={{title: t('Tasks')}}/>
 
-            <GeneralPage showHomeButton={true} showFilterButton={true} filterButtonHref={'/task/filter/month'}>
+            {/* If there is FlatList child element, the scroll must be false */}
+            <GeneralPage showHomeButton={true} showFilterButton={true} filterButtonHref={'/task/filter/month'} scroll={false}>
                 <View style={styles.container}>
                     <Filter
                         filters={{
@@ -50,43 +50,62 @@ export default function TaskListPage() {
                     />
 
                     {loading ? (
-                        <p className="text-blue-600">{t('Loading...')}</p>
-                    ) : error ? (
-                        <p className="text-gray-500">{t('No tasks found')}</p>
-                    ) : taskData.length > 0 ? (
-                        <FlatList
-                            data={taskData}
-                            keyExtractor={(item) => item.id}
-                            renderItem={({item}) => (
-                                <Link href={item.href} style={styles.task}>
-                                    <View>
-                                        <Text style={styles.taskTitle}>{item.title}</Text>
-                                        <Text style={styles.taskDate}>{item.date}</Text>
-                                    </View>
-                                </Link>
-                            )}
-                            ListEmptyComponent={<Text style={styles.noTasks}>No tasks this month.</Text>}
-                        />
-                    ) : (
-                        <p className="text-gray-500">{t('No tasks found')}</p>
-                    )}
-                </View>
-            </GeneralPage>
-        </>
-    );
-}
+                            <Text style={styles.messageText}>{t('Loading...')}</Text>
+                        ) : error ? (
+                            <Text style={styles.messageText}>{t('No tasks found')}</Text>
+                        ) : taskData.length > 0 ? (
+                            <FlatList
+                                data={taskData}
+                                keyExtractor={(item) => item.id}
+                                renderItem={({item}) => (
+                                    <Link
+                                        href={{
+                                            pathname: '/task/[id]',
+                                            params: {
+                                                id: item.id,
+                                                title: item.title,
+                                                description: item.description,
+                                                date: item.date,
+                                                studentName: item.studentName,
+                                                classTitle: item.classTitle,
+                                            },
+                                        }}
+                                        style={styles.task}
+                                    >
+                                        <View>
+                                            <Text style={styles.taskTitle}>{item.title}</Text>
+                                            <Text style={styles.taskDate}>{item.date}</Text>
+                                        </View>
+                                    </Link>
+                                )}
+                                ListEmptyComponent={<Text style={styles.noTasks}>No tasks this month.</Text>}
+                            />
+                        ) : (
+                            <Text style={styles.messageText}>{t('No tasks found')}</Text>
+                        )}
+                    </View>
+                </GeneralPage>
+            </>
+        );
+    }
 
-const styles = StyleSheet.create({
-    container: {
-        backgroundColor: '#f5f9ff',
-        paddingHorizontal: 16,
-        flex: 1,
-    },
-    header: {
-        borderBottomWidth: 1,
-        borderBottomColor: '#ddd',
-        marginBottom: 5,
-    },
+    const styles = StyleSheet.create({
+        container: {
+            backgroundColor: '#f5f9ff',
+            paddingHorizontal: 16,
+            flex: 1,
+        },
+        messageText: {
+            color: '#64748b',
+            fontSize: 16,
+            textAlign: 'center',
+            marginTop: 20,
+        },
+        header: {
+            borderBottomWidth: 1,
+            borderBottomColor: '#ddd',
+            marginBottom: 5,
+        },
     heading: {
         fontSize: 24,
         fontWeight: 'bold',

@@ -4,6 +4,7 @@ import {Link, type Href} from 'expo-router';
 import {MaterialCommunityIcons} from '@expo/vector-icons';
 import GeneralPage from "@/app/components/GeneralPage";
 import React from "react";
+import {useTranslation} from "react-i18next";
 
 type MenuItem = {
     key: string;
@@ -12,20 +13,23 @@ type MenuItem = {
     icon: React.ComponentProps<typeof MaterialCommunityIcons>['name'];
 };
 
-const DATA: MenuItem[] = [
-    {key: 'schedule', title: 'Դասացուցակ', href: '/schedule', icon: 'calendar-month'},
-    {key: 'journal', title: 'Մատյան', href: '/journal', icon: 'book-open-page-variant'},
-    {key: 'task', title: 'Առաջադրանք', href: '/task', icon: 'clipboard-check-outline'},
-    {key: 'semester', title: 'Առաջադիմություն', href: '/semester', icon: 'chart-bar'},
-    {key: 'absent', title: 'Բացակայություն', href: '/absent', icon: 'account-off'},
-    {key: 'finance', title: 'ֆինանսներ', href: '/finance', icon: 'finance'},
-    {key: 'transport', title: 'Տրանսպորտ', href: '/transport', icon: 'bus'},
-    {key: 'canteen', title: 'Ճաշարան', href: '/canteen', icon: 'silverware-fork-knife'},
-];
-
 const App = () => {
+    const {t} = useTranslation();
+
+    const DATA: MenuItem[] = [
+        {key: 'schedule', title: t('Schedule'), href: '/schedule', icon: 'calendar-month'},
+        {key: 'journal', title: t('Journal'), href: '/journal', icon: 'book-open-page-variant'},
+        {key: 'task', title: t('Task'), href: '/task', icon: 'clipboard-check-outline'},
+        {key: 'semester', title: t('Semester'), href: '/semester', icon: 'chart-bar'},
+        {key: 'absent', title: t('Absent'), href: '/absent', icon: 'account-off'},
+        {key: 'finance', title: t('Finance'), href: '/finance', icon: 'finance'},
+        {key: 'transport', title: t('Transport'), href: '/transport', icon: 'bus'},
+        {key: 'canteen', title: t('Canteen'), href: '/canteen', icon: 'silverware-fork-knife'},
+    ];
+
     return (
-        <GeneralPage showHomeButton={false} showUserHeader={true}>
+        // If there is FlatList child element, the scroll must be false
+        <GeneralPage showHomeButton={false} showUserHeader={true} scroll={false}>
             <SafeAreaProvider>
                 <SafeAreaView style={styles.container} edges={['top']}>
                     <FlatList

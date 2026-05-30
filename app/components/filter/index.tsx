@@ -193,7 +193,6 @@ export function Filter<TPageData>({
     const [classData, setClassData] = useState<FilterGeneralType[]>([]);
     const [subjectData, setSubjectData] = useState<FilterGeneralType[]>([]);
     const [studentData, setStudentData] = useState<FilterGeneralType[]>([]);
-
     const [data, setFormData] = useState({
         semesterId: '' as string | null,
         monthId: '' as string | null,

@@ -16,6 +16,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import API from "../services/api";
 import LanguageSwitcher from "./LanguageSwitcher";
 import {Ionicons, MaterialCommunityIcons} from "@expo/vector-icons";
+import {useTranslation} from "react-i18next";
 
 type User = {
     name: string;
@@ -51,6 +52,7 @@ export default function GeneralPage({
     showFilterButton = false,
     filterButtonHref = '/',
 }: GeneralPageProps) {
+    const {t} = useTranslation();
     const router = useRouter();
 
     const [user, setUser] = useState<User | null>(null);
@@ -104,7 +106,7 @@ export default function GeneralPage({
                                 size={22}
                                 color="#ffffff"
                             />
-                            <Text style={styles.homeButtonText}>Home</Text>
+                            <Text style={styles.homeButtonText}>{t('Home')}</Text>
                         </TouchableOpacity>
                     ) : null}
 
