@@ -8,12 +8,13 @@ import {
     KeyboardAvoidingView,
     Platform,
     Alert,
+    ScrollView,
 } from "react-native";
 import {useRouter} from "expo-router";
 import Icon from "react-native-vector-icons/MaterialIcons";
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import Api from "@/app/services/api";
 import {useTranslation} from "react-i18next";
+import {setToken} from "@/app/services/tokenStorage";
 
 export default function LoginPage() {
     const {t} = useTranslation();
@@ -33,66 +34,84 @@ export default function LoginPage() {
             const response = await Api.post(
                 "/login",
                 {
-                    user_name: email,
-                    password: password,
+                    user_name: 'user_17',
+                    password: 'tQtoD09S',
                 }
             );
 
             const token = response.data.token;
-            await AsyncStorage.setItem("token", token);
+            await setToken(token);
 
             router.replace("/account");
-        } catch {
-            Alert.alert("Login failed", "Please check your credentials and try again.");
+        } catch (error: any) {
+            console.log("Login error:", {
+                message: error.message,
+                status: error.response?.status,
+                data: error.response?.data,
+                url: error.config?.url,
+                baseURL: error.config?.baseURL,
+            });
+
+            Alert.alert(t('Login failed'), t('Please check your credentials and try again.'));
         }
     };
 
     return (
         <KeyboardAvoidingView
             style={styles.container}
-            behavior={Platform.OS === "ios" ? "padding" : undefined}
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            keyboardVerticalOffset={Platform.OS === "ios" ? 20 : 0}
         >
-            <View style={styles.card}>
-                <View style={styles.iconContainer}>
-                    <Icon name="lock" size={42} color="#4CAF50"/>
+            <ScrollView
+                contentContainerStyle={styles.scrollContent}
+                keyboardShouldPersistTaps="handled"
+                showsVerticalScrollIndicator={false}
+            >
+                <View style={styles.card}>
+                    <View style={styles.iconContainer}>
+                        <Icon name="lock" size={42} color="#4CAF50"/>
+                    </View>
+
+                    <Text style={styles.title}>{t('Welcome Back')}</Text>
+                    <Text style={styles.subtitle}>{t('Learn. Grow. Succeed. Together.')}</Text>
+
+                    <View style={styles.inputContainer}>
+                        <Icon name="email" size={22} color="#777" style={styles.inputIcon}/>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Email or username"
+                            placeholderTextColor="#999"
+                            value={email}
+                            onChangeText={setEmail}
+                            keyboardType="email-address"
+                            autoCapitalize="none"
+                            returnKeyType="next"
+                        />
+                    </View>
+
+                    <View style={styles.inputContainer}>
+                        <Icon name="lock" size={22} color="#777" style={styles.inputIcon}/>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Password"
+                            placeholderTextColor="#999"
+                            value={password}
+                            onChangeText={setPassword}
+                            secureTextEntry
+                            returnKeyType="done"
+                            onSubmitEditing={handleLogin}
+                        />
+                    </View>
+
+                    <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+                        <Text style={styles.loginButtonText}>{t('Login')}</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity onPress={() => router.back()}>
+                        <Text style={styles.backText}>{t('Go back')}</Text>
+                    </TouchableOpacity>
                 </View>
-
-                <Text style={styles.title}>Welcome Back</Text>
-                <Text style={styles.subtitle}>Login to continue</Text>
-
-                <View style={styles.inputContainer}>
-                    <Icon name="email" size={22} color="#777" style={styles.inputIcon}/>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Email or username"
-                        placeholderTextColor="#999"
-                        value={email}
-                        onChangeText={setEmail}
-                        keyboardType="email-address"
-                        autoCapitalize="none"
-                    />
-                </View>
-
-                <View style={styles.inputContainer}>
-                    <Icon name="lock" size={22} color="#777" style={styles.inputIcon}/>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Password"
-                        placeholderTextColor="#999"
-                        value={password}
-                        onChangeText={setPassword}
-                        secureTextEntry
-                    />
-                </View>
-
-                <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-                    <Text style={styles.loginButtonText}>{t('Login')}</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity onPress={() => router.back()}>
-                    <Text style={styles.backText}>{t('Go back')}</Text>
-                </TouchableOpacity>
-            </View>
+            </ScrollView>
         </KeyboardAvoidingView>
     );
 }
@@ -101,8 +120,12 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#f9f9f9",
+    },
+    scrollContent: {
+        flexGrow: 1,
         justifyContent: "center",
         padding: 20,
+        paddingBottom: 40,
     },
     card: {
         backgroundColor: "#fff",

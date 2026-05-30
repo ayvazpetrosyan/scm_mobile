@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import {useTranslation} from "react-i18next";
 import API from "@/app/services/api";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import {getToken, removeToken} from "@/app/services/tokenStorage";
 
 type FilterGeneralType = {
     id: string;
@@ -218,7 +218,7 @@ export function Filter<TPageData>({
         if (!pageDataRoute || !setPageDataLoading || !setPageDataError || !setPageData) {
             return;
         }
-        const token = await AsyncStorage.getItem("token");
+        const token = await getToken();
 
         const payload = {
             semesterId: updated.semesterId ?? data.semesterId ?? null,
@@ -284,7 +284,7 @@ export function Filter<TPageData>({
         callBackFunction: (value: (((prevState: FilterGeneralType[]) => FilterGeneralType[]) | FilterGeneralType[])) => void,
         payload: any = {},
     ) => {
-        const token = await AsyncStorage.getItem("token");
+        const token = await getToken();
         payload.headers = {Authorization: `Bearer ${token}`}
         await API
             .get(url, payload)

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { useRouter } from "expo-router";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import {getToken, removeToken} from "@/app/services/tokenStorage";
 import Api from "@/app/services/api";
 
 type AuthProps = {
@@ -17,7 +17,7 @@ export default function Auth({ children }: AuthProps) {
     useEffect(() => {
         const checkAuth = async () => {
             try {
-                const token = await AsyncStorage.getItem("token");
+                const token = await getToken();
 
                 if (!token) {
                     router.replace("/login");
@@ -32,7 +32,7 @@ export default function Auth({ children }: AuthProps) {
 
                 setAuthenticated(true);
             } catch {
-                await AsyncStorage.removeItem("token");
+                await removeToken();
                 router.replace("/login");
             } finally {
                 setChecking(false);

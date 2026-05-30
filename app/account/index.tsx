@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import Icon from "react-native-vector-icons/MaterialIcons";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import {getToken, removeToken} from "@/app/services/tokenStorage";
 import API from "@/app/services/api";
 import GeneralPage from "@/app/components/GeneralPage";
 
@@ -31,7 +31,7 @@ export default function AccountPage() {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const token = await AsyncStorage.getItem("token");
+                const token = await getToken();
 
                 if (!token) {
                     router.replace("/login");
@@ -58,7 +58,7 @@ export default function AccountPage() {
 
     const handleLogout = async () => {
         try {
-            await AsyncStorage.removeItem("token");
+            await removeToken();
             router.replace("/login");
         } catch {
             Alert.alert("Error", "Unable to remove token.");

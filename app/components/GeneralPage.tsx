@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {Href, Link, useRouter} from "expo-router";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import {getToken, removeToken} from "@/app/services/tokenStorage";
 import API from "../services/api";
 import LanguageSwitcher from "./LanguageSwitcher";
 import {Ionicons, MaterialCommunityIcons} from "@expo/vector-icons";
@@ -60,7 +60,7 @@ export default function GeneralPage({
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const token = await AsyncStorage.getItem("token");
+                const token = await getToken();
 
                 if (!token) {
                     router.replace("/login");
@@ -75,7 +75,7 @@ export default function GeneralPage({
 
                 setUser(response.data);
             } catch {
-                await AsyncStorage.removeItem("token");
+                await removeToken();
                 router.replace("/login");
             }
         };

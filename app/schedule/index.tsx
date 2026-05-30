@@ -8,7 +8,7 @@ import {
 import GeneralPage from "@/app/components/GeneralPage";
 import {Stack} from "expo-router";
 import {useTranslation} from "react-i18next";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import {getToken, removeToken} from "@/app/services/tokenStorage";
 import API from "@/app/services/api";
 
 type ScheduleCellType = {
@@ -77,7 +77,7 @@ export default function Schedule() {
 
     useEffect(() => {
         const fetchSchedule = async () => {
-            const token = await AsyncStorage.getItem("token");
+            const token = await getToken();
             if (!token) {
                 setError("No token found");
                 return;
