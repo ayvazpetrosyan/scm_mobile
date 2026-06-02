@@ -122,7 +122,7 @@ export default function Schedule() {
                         <Text style={styles.messageText}>{t('Loading...')}</Text>
                     ) : error ? (
                         <Text style={styles.messageText}>{t('No data found')}</Text>
-                    ) : pageData.length > 0 ? (
+                    ) : pageData.length > 0 || Object.keys(pageData)?.length > 0 ? (
                         <FlatList
                             data={pageData}
                             keyExtractor={(item) => item.id}
