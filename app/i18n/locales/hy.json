@@ -49,5 +49,10 @@
     "finance": "Ֆինանսներ",
     "transport": "Տրանսպորտ",
     "canteen": "Ճաշարան"
+  },
+  "filter": {
+    "semester": {
+      "label": "Կիսամյակ"
+    }
   }
 }

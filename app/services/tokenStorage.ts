@@ -1,35 +1,15 @@
-// localStorage is not as secure as expo-secure-store.
-// This is okay for local browser testing,
-// but for production web apps need to use a more secure auth strategy,
-// such as HTTP-only cookies.
-
-import { Platform } from 'react-native';
-import * as SecureStore from 'expo-secure-store';
+import {getStorage, removeStorage, setStorage} from "@/app/services/storage";
 
 const TOKEN_KEY = 'token';
 
 export async function setToken(token: string) {
-  if (Platform.OS === 'web') {
-    localStorage.setItem(TOKEN_KEY, token);
-    return;
-  }
-
-  await SecureStore.setItemAsync(TOKEN_KEY, token);
+  await setStorage(TOKEN_KEY, token);
 }
 
 export async function getToken() {
-  if (Platform.OS === 'web') {
-    return localStorage.getItem(TOKEN_KEY);
-  }
-
-  return await SecureStore.getItemAsync(TOKEN_KEY);
+  return await getStorage(TOKEN_KEY);
 }
 
 export async function removeToken() {
-  if (Platform.OS === 'web') {
-    localStorage.removeItem(TOKEN_KEY);
-    return;
-  }
-
-  await SecureStore.deleteItemAsync(TOKEN_KEY);
+  await removeStorage(TOKEN_KEY);
 }

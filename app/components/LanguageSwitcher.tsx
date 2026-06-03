@@ -1,7 +1,7 @@
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useTranslation } from "react-i18next";
-import * as SecureStore from "expo-secure-store";
+import {setStorage} from "@/app/services/storage";
 
 const LANGUAGES = [
     { code: "hy", label: "Հայ" },
@@ -13,7 +13,7 @@ export default function LanguageSwitcher() {
     const { i18n } = useTranslation();
 
     const changeLanguage = async (language: string) => {
-    await SecureStore.setItemAsync("language", language);
+    await setStorage("language", language);
     await i18n.changeLanguage(language);
 };
 

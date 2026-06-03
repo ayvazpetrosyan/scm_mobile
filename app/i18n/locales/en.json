@@ -23,5 +23,10 @@
     "finance": "Finance",
     "transport": "Transport",
     "canteen": "Canteen"
+  },
+  "filter": {
+    "semester": {
+      "label": "Semester"
+    }
   }
 }

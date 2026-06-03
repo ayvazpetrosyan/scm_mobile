@@ -389,7 +389,7 @@ export function Filter<TPageData>({
             {/* Semester filter */}
             {filters.semester && (
                 <View style={filterStyles.field}>
-                    <Text style={filterStyles.label}>{t('Semester')}</Text>
+                    <Text style={filterStyles.label}>{t('filter.semester.label')}</Text>
                     <Select
                         className={'z-[55]'}
                         value={

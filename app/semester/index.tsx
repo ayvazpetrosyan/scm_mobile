@@ -25,7 +25,7 @@ export default function Semester() {
     const [error, setError] = useState<string | null>(null);
 
     return (
-        <GeneralPage title={'Semester'} scroll={false}>
+        <GeneralPage scroll={false}>
             <SafeAreaProvider>
                 <View style={styles.container}>
                     <Filter

@@ -22,13 +22,14 @@ export default function Absent() {
     const [pageData, setPageData] = useState<AbsentType>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-
-    console.log('pageData', pageData);
-    console.log('pageData.length', pageData.length);
-    console.log('pageData.length 2', Object.keys(pageData)?.length);
+    const normalizedPageData: AbsentType = Array.isArray(pageData)
+        ? pageData
+        : pageData
+            ? [pageData]
+            : [];
 
     return (
-        <GeneralPage title={'Absent'}>
+        <GeneralPage scroll={false}>
             <SafeAreaProvider>
                 <Filter
                     filters={{
@@ -47,7 +48,7 @@ export default function Absent() {
                     <Text style={styles.messageText}>{t('No data found')}</Text>
                 ) : pageData.length > 0 || Object.keys(pageData)?.length > 0 ? (
                     <FlatList
-                        data={pageData}
+                        data={normalizedPageData}
                         keyExtractor={(item) => item.studentName}
                         renderItem={({item}) => {
                             return (
@@ -55,7 +56,7 @@ export default function Absent() {
                                     <Text style={styles.dayTitle}>{item.studentName}</Text>
 
                                     <View style={styles.gradesColumn}>
-                                        {item.absentInfo.map((absent, index) => (
+                                        {Object.values(item.absentInfo).map((absent, index) => (
                                             <View key={`min-grade-${absent.subjectId}`} style={styles.gradeItem}>
                                                 <Text style={styles.gradeName}>{absent.subjectTitle}</Text>
                                                 <Text style={styles.gradeValue}>{absent.absentCount}</Text>
