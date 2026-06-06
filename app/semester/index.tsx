@@ -1,7 +1,7 @@
 import GeneralPage from "@/app/components/GeneralPage";
 import {SafeAreaProvider} from "react-native-safe-area-context";
 import {FlatList, StyleSheet, Text, View} from "react-native";
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import {useTranslation} from "react-i18next";
 import {Filter} from "@/app/components/filter";
 

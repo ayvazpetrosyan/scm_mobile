@@ -1,11 +1,8 @@
-import { Text, View, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
+import {router} from "expo-router";
 
 export default function NotificationScreen() {
-    return (
-        <View style={styles.container}>
-            <Text style={styles.text}>Notification</Text>
-        </View>
-    );
+    router.push("/notification");
 }
 
 const styles = StyleSheet.create({

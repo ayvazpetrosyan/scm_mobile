@@ -102,6 +102,7 @@ export default function Schedule() {
                 .catch((err) => {
                     console.error('Error fetching data:', err);
                     setError('Error fetching data');
+                    setLoading(false);
                 })
                 .finally(() => {
                     setLoading(false);
