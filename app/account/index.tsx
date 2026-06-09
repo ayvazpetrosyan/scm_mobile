@@ -14,6 +14,7 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 import {getToken, removeToken} from "@/app/services/tokenStorage";
 import API from "@/app/services/api";
 import GeneralPage from "@/app/components/GeneralPage";
+import {useTranslation} from "react-i18next";
 
 type User = {
     name: string;
@@ -24,7 +25,7 @@ type User = {
 
 export default function AccountPage() {
     const router = useRouter();
-
+    const {t} = useTranslation();
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
 
@@ -78,7 +79,7 @@ export default function AccountPage() {
     }
 
     return (
-        <GeneralPage title="Account" showUserHeader={false} showLanguageSwitcher={true}>
+        <GeneralPage showUserHeader={false} showLanguageSwitcher={true}>
             <ScrollView contentContainerStyle={styles.container}>
                 <Image
                     source={{
@@ -88,15 +89,15 @@ export default function AccountPage() {
                 />
 
                 <View style={styles.infoContainer}>
-                    <InfoRow icon="person" label="Name" value={user.name} />
-                    <InfoRow icon="email" label="Email" value={user.email} />
-                    <InfoRow icon="phone" label="Phone" value={user.phone || "-"} />
+                    <InfoRow icon="person" label={t('Name')} value={user.name} />
+                    <InfoRow icon="email" label={t('Email')} value={user.email} />
+                    <InfoRow icon="phone" label={t('Phone')} value={user.phone || "-"} />
                 </View>
 
                 <View style={styles.buttonContainer}>
                     <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
                         <Icon name="logout" size={20} color="#fff" />
-                        <Text style={styles.buttonText}>Logout</Text>
+                        <Text style={styles.buttonText}>{t('Logout')}</Text>
                     </TouchableOpacity>
                 </View>
             </ScrollView>

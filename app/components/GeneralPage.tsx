@@ -35,6 +35,7 @@ type GeneralPageProps = {
     showUserHeader?: boolean;
     showLanguageSwitcher?: boolean;
     showHomeButton?: boolean;
+    showBackButton?: boolean;
     showFilterButton?: boolean;
     filterButtonHref?: Href;
 };
@@ -49,6 +50,7 @@ export default function GeneralPage({
     showUserHeader = false,
     showLanguageSwitcher = false,
     showHomeButton = true,
+    showBackButton = true,
     showFilterButton = false,
     filterButtonHref = '/',
 }: GeneralPageProps) {
@@ -91,24 +93,50 @@ export default function GeneralPage({
         router.push("/");
     };
 
+    const goBack = () => {
+        if (router.canGoBack()) {
+            router.back();
+            return;
+        }
+
+        router.replace("/");
+    };
+
     const content = (
         <View style={[styles.content, contentStyle]}>
             <View style={styles.topBar}>
                 <View style={styles.topActions}>
-                    {showHomeButton ? (
-                        <TouchableOpacity
-                            style={styles.homeButton}
-                            activeOpacity={0.75}
-                            onPress={openHomePage}
-                        >
-                            <MaterialCommunityIcons
-                                name="home"
-                                size={22}
-                                color="#ffffff"
-                            />
-                            <Text style={styles.homeButtonText}>{t('Home')}</Text>
-                        </TouchableOpacity>
-                    ) : null}
+                    <View style={styles.leftActions}>
+                        {showBackButton ? (
+                            <TouchableOpacity
+                                style={styles.backButton}
+                                activeOpacity={0.75}
+                                onPress={goBack}
+                            >
+                                <Ionicons
+                                    name="arrow-back"
+                                    size={22}
+                                    color="#ffffff"
+                                />
+                                <Text style={styles.actionButtonText}>{t('Go back')}</Text>
+                            </TouchableOpacity>
+                        ) : null}
+
+                        {showHomeButton ? (
+                            <TouchableOpacity
+                                style={styles.homeButton}
+                                activeOpacity={0.75}
+                                onPress={openHomePage}
+                            >
+                                <MaterialCommunityIcons
+                                    name="home"
+                                    size={22}
+                                    color="#ffffff"
+                                />
+                                <Text style={styles.actionButtonText}>{t('Home')}</Text>
+                            </TouchableOpacity>
+                        ) : null}
+                    </View>
 
                     {showFilterButton ? (
                         <View style={styles.filterContainer}>
@@ -119,11 +147,11 @@ export default function GeneralPage({
                             </Link>
                         </View>
                     ) : null}
-
-                    {showLanguageSwitcher ? (
-                        <LanguageSwitcher />
-                    ) : null}
                 </View>
+
+                {showLanguageSwitcher ? (
+                    <LanguageSwitcher />
+                ) : null}
 
                 {showUserHeader ? (
                     <TouchableOpacity
@@ -132,7 +160,7 @@ export default function GeneralPage({
                         onPress={openAccountPage}
                     >
                         <View style={styles.userInfo}>
-                            <Text style={styles.greeting}>Welcome</Text>
+                            <Text style={styles.greeting}>{t('Welcome')}</Text>
                             <Text style={styles.userName} numberOfLines={1}>
                                 {user?.name || "User"}
                             </Text>
@@ -209,6 +237,19 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
         marginBottom: 12,
     },
+    leftActions: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 8,
+    },
+    backButton: {
+        flexDirection: "row",
+        alignItems: "center",
+        backgroundColor: "#64748b",
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        borderRadius: 10,
+    },
     homeButton: {
         flexDirection: "row",
         alignItems: "center",
@@ -216,6 +257,12 @@ const styles = StyleSheet.create({
         paddingVertical: 8,
         paddingHorizontal: 12,
         borderRadius: 10,
+    },
+    actionButtonText: {
+        color: "#ffffff",
+        fontSize: 14,
+        fontWeight: "600",
+        marginLeft: 6,
     },
     homeButtonText: {
         color: "#ffffff",

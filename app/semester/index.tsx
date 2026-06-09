@@ -43,9 +43,9 @@ export default function Semester() {
                         <Text style={styles.messageText}>{t('Loading...')}</Text>
                     ) : error ? (
                         <Text style={styles.messageText}>{t('No data found')}</Text>
-                    ) : pageData.length > 0 ? (
+                    ) : Object.values(pageData).length > 0 ? (
                         <FlatList
-                            data={pageData}
+                            data={Object.values(pageData)}
                             keyExtractor={(item) => item.subjectId}
                             renderItem={({item}) => {
                                 return (
@@ -102,42 +102,6 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         marginTop: 20,
     },
-    SemesterCard: {
-        backgroundColor: '#ffffff',
-        padding: 14,
-        borderRadius: 10,
-        marginBottom: 10,
-        shadowColor: '#000',
-        shadowOffset: {width: 0, height: 2},
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
-        borderWidth: 1,
-        borderColor: '#e2e8f0',
-    },
-    SemesterHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
-        gap: 10,
-        marginBottom: 8,
-    },
-    SemesterTitle: {
-        flex: 1,
-        fontSize: 18,
-        fontWeight: '700',
-        color: '#1a73e8',
-    },
-    SemesterTime: {
-        fontSize: 15,
-        fontWeight: '600',
-        color: '#0f172a',
-    },
-    SemesterText: {
-        fontSize: 15,
-        color: '#334155',
-        marginTop: 4,
-    },
     subjectCard: {
         backgroundColor: '#ffffff',
         borderRadius: 12,
@@ -176,33 +140,6 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#e2e8f0',
     },
-    lessonRow: {
-        flexDirection: 'row',
-        borderBottomWidth: 1,
-        borderBottomColor: '#e2e8f0',
-        minHeight: 52,
-    },
-    timeColumn: {
-        width: 95,
-        backgroundColor: '#eff6ff',
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingHorizontal: 8,
-        borderRightWidth: 1,
-        borderRightColor: '#dbeafe',
-    },
-    subjectColumn: {
-        flex: 1,
-        justifyContent: 'center',
-        paddingHorizontal: 12,
-        paddingVertical: 10,
-    },
-    lessonTime: {
-        color: '#0f172a',
-        fontSize: 14,
-        fontWeight: '700',
-        textAlign: 'center',
-    },
     subjectTitle: {
         color: '#334155',
         fontSize: 15,
@@ -226,10 +163,5 @@ const styles = StyleSheet.create({
         fontWeight: '800',
         flex: 1,
         textAlign: 'right',
-    },
-    emptyGrades: {
-        color: '#94a3b8',
-        fontSize: 14,
-        fontStyle: 'italic',
-    },
+    }
 });

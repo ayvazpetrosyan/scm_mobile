@@ -29,7 +29,7 @@ const App = () => {
 
     return (
         // If there is FlatList child element, the scroll must be false
-        <GeneralPage showHomeButton={false} showUserHeader={true} scroll={false}>
+        <GeneralPage showHomeButton={false} showBackButton={false} showUserHeader={true} scroll={false}>
             <SafeAreaProvider>
                 <SafeAreaView style={styles.container} edges={['top']}>
                     <FlatList
