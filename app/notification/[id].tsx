@@ -1,9 +1,58 @@
-import {Href} from "expo-router";
 import React from 'react';
-import {StyleSheet, Text, StatusBar, View} from 'react-native';
+import {Platform, StyleSheet, Text, StatusBar, View} from 'react-native';
 import {Stack, useLocalSearchParams} from 'expo-router';
 import {useTranslation} from "react-i18next";
 import GeneralPage from "@/app/components/GeneralPage";
+
+import {WebView} from "react-native-webview";
+
+const HtmlDescription = ({html}: { html: string }) => {
+    if (Platform.OS === 'web') {
+        return React.createElement('div', {
+            style: {
+                fontSize: 16,
+                color: '#000000',
+                width: '100%',
+            },
+            dangerouslySetInnerHTML: {
+                __html: html,
+            },
+        });
+    }
+
+    const htmlDescription = `
+        <!DOCTYPE html>
+        <html lang="">
+            <head>
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <style>
+                    body {
+                        font-size: 16px;
+                        color: #000000;
+                        margin: 0;
+                        padding: 0;
+                        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+                    }
+                    img {
+                        max-width: 100%;
+                        height: auto;
+                    }
+                </style>
+            </head>
+            <body>
+                ${html}
+            </body>
+        </html>
+    `;
+    
+    return (
+        <WebView
+            originWhitelist={['*']}
+            source={{html: htmlDescription}}
+            style={styles.descriptionWebView}
+        />
+    );
+}
 
 const NotificationDetail = () => {
     const {t} = useTranslation();
@@ -23,7 +72,7 @@ const NotificationDetail = () => {
 
     return (
         <>
-            <Stack.Screen options={{title: title || 'Notification Details'}}/>
+            <Stack.Screen options={{title: title || t('Notification Details')}}/>
 
             <GeneralPage showHomeButton={true}>
                 <View style={styles.container}>
@@ -41,7 +90,9 @@ const NotificationDetail = () => {
                         ) : null}
 
                         <Text style={styles.label}>{t('Description:')}</Text>
-                        <Text style={styles.value}>{description}</Text>
+                        <View style={styles.descriptionContainer}>
+                            <HtmlDescription html={description || ''}/>
+                        </View>
                     </View>
                 </View>
             </GeneralPage>
@@ -80,5 +131,16 @@ const styles = StyleSheet.create({
     value: {
         fontSize: 16,
         marginTop: 4,
+    },
+    descriptionContainer: {
+        height: 300,
+        marginTop: 4,
+        overflow: 'hidden',
+        borderRadius: 8,
+        backgroundColor: '#ffffff',
+    },
+    descriptionWebView: {
+        flex: 1,
+        backgroundColor: 'transparent',
     },
 });

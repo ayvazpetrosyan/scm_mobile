@@ -162,7 +162,7 @@ export default function GeneralPage({
                         <View style={styles.userInfo}>
                             <Text style={styles.greeting}>{t('Welcome')}</Text>
                             <Text style={styles.userName} numberOfLines={1}>
-                                {user?.name || "User"}
+                                {user?.name}
                             </Text>
                             {user?.email ? (
                                 <Text style={styles.userEmail} numberOfLines={1}>

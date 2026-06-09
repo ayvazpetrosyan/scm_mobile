@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import {useTranslation} from "react-i18next";
 import API from "@/app/services/api";
-import {getToken, removeToken} from "@/app/services/tokenStorage";
+import {getToken} from "@/app/services/tokenStorage";
 
 type FilterGeneralType = {
     id: string;
@@ -237,7 +237,6 @@ export function Filter<TPageData>({
             params: payload,
         })
             .then((response) => {
-                response.data.subjectId = payload.subjectId;
                 setPageData(response.data);
             })
             .catch((err) => {

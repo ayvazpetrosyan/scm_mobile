@@ -30,6 +30,8 @@
   "Phone": "Հեռախոս",
   "Logout": "Ելք",
   "Welcome": "Բարի գալուստ",
+  "Loading...": "Բեռնվում է...",
+  "Notification Details": "Ծանուցման մանրամասներ",
   "common": {
     "home": "Գլխավոր",
     "account": "Հաշիվ",
