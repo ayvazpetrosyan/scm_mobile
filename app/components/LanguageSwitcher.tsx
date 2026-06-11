@@ -1,21 +1,27 @@
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { useTranslation } from "react-i18next";
+import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {useTranslation} from "react-i18next";
 import {setStorage} from "@/app/services/storage";
 
 const LANGUAGES = [
-    { code: "hy", label: "Հայ" },
-    { code: "en", label: "EN" },
-    { code: "ru", label: "RU" },
+    {code: "hy", label: "Հայ"},
+    {code: "en", label: "EN"},
+    {code: "ru", label: "RU"},
 ];
 
 export default function LanguageSwitcher() {
     const { i18n } = useTranslation();
 
+    const currentLanguage = i18n.resolvedLanguage || i18n.language;
+
     const changeLanguage = async (language: string) => {
-    await setStorage("language", language);
-    await i18n.changeLanguage(language);
-};
+        try {
+            await i18n.changeLanguage(language);
+            await setStorage("language", language);
+        } catch (error) {
+            console.error("Unable to change language:", error);
+        }
+    };
 
     return (
         <View style={styles.container}>
@@ -24,14 +30,14 @@ export default function LanguageSwitcher() {
                     key={language.code}
                     style={[
                         styles.button,
-                        i18n.language === language.code && styles.activeButton,
+                        currentLanguage === language.code && styles.activeButton,
                     ]}
-                    onPress={() => changeLanguage(language.code)}
+                    onPress={() => void changeLanguage(language.code)}
                 >
                     <Text
                         style={[
                             styles.text,
-                            i18n.language === language.code && styles.activeText,
+                            currentLanguage === language.code && styles.activeText,
                         ]}
                     >
                         {language.label}
