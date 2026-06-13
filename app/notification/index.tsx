@@ -3,7 +3,7 @@ import GeneralPage from "@/app/components/GeneralPage";
 import {FlatList, StyleSheet, Text, View} from "react-native";
 import React, {useEffect, useState} from "react";
 import {useTranslation} from "react-i18next";
-import API from "@/app/services/api";
+import ApiService from "@/app/services/apiService";
 import {getToken} from "@/app/services/tokenStorage";
 
 type NotificationRowType = {
@@ -31,7 +31,7 @@ export default function Notification() {
             setLoading(true);
             setError(null);
 
-            API.get('/notification', {
+            ApiService.get('/notification', {
                 headers: {Authorization: `Bearer ${token}`},
             }).then(response => {
                 setNotificationData(response.data);

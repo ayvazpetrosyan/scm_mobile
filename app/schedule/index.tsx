@@ -9,7 +9,7 @@ import GeneralPage from "@/app/components/GeneralPage";
 import {Stack} from "expo-router";
 import {useTranslation} from "react-i18next";
 import {getToken, removeToken} from "@/app/services/tokenStorage";
-import API from "@/app/services/api";
+import ApiService from "@/app/services/apiService";
 
 type ScheduleCellType = {
     id?: number | string;
@@ -92,7 +92,7 @@ export default function Schedule() {
             setError(null);
             setPageData([]);
 
-            API.get("/schedule", {
+            ApiService.get("/schedule", {
                 headers: {Authorization: `Bearer ${token}`},
                 params: payload,
             })

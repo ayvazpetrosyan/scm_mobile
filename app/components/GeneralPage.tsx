@@ -12,11 +12,11 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {Href, Link, useRouter} from "expo-router";
-import {getToken, removeToken} from "@/app/services/tokenStorage";
-import API from "../services/api";
+import {removeScmToken} from "@/app/services/storage/tokenStorage";
 import LanguageSwitcher from "./LanguageSwitcher";
 import {Ionicons, MaterialCommunityIcons} from "@expo/vector-icons";
 import {useTranslation} from "react-i18next";
+import {fetchScmUser} from "@/app/services/user/userService";
 
 type User = {
     name: string;
@@ -61,23 +61,12 @@ export default function GeneralPage({
 
     useEffect(() => {
         const fetchUser = async () => {
+            debugger;
             try {
-                const token = await getToken();
-
-                if (!token) {
-                    router.replace("/login");
-                    return;
-                }
-
-                const response = await API.get("/user", {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                setUser(response.data);
+                const fetchedUser = await fetchScmUser();
+                setUser(fetchedUser);
             } catch {
-                await removeToken();
+                await removeScmToken();
                 router.replace("/login");
             }
         };

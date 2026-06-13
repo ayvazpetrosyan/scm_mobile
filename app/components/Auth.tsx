@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { useRouter } from "expo-router";
 import {getToken, removeToken} from "@/app/services/tokenStorage";
-import Api from "@/app/services/api";
+import Api from "@/app/services/apiService";
 
 type AuthProps = {
     children: React.ReactNode;

@@ -12,9 +12,10 @@ import {
 } from "react-native";
 import {useRouter} from "expo-router";
 import Icon from "react-native-vector-icons/MaterialIcons";
-import Api from "@/app/services/api";
+import Api from "@/app/services/api/apiService";
 import {useTranslation} from "react-i18next";
-import {setToken} from "@/app/services/tokenStorage";
+import {setScmToken} from "@/app/services/storage/tokenStorage";
+import {setScmUser} from "@/app/services/storage/userStorage";
 
 export default function LoginPage() {
     const {t} = useTranslation();
@@ -40,7 +41,9 @@ export default function LoginPage() {
             );
 
             const token = response.data.token;
-            await setToken(token);
+            const user = response.data.user;
+            await setScmToken(token);
+            await setScmUser(user);
 
             router.replace("/account");
         } catch (error: any) {

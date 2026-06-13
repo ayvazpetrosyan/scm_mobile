@@ -11,10 +11,10 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import Icon from "react-native-vector-icons/MaterialIcons";
-import {getToken, removeToken} from "@/app/services/tokenStorage";
-import API from "@/app/services/api";
+import {removeScmToken} from "@/app/services/storage/tokenStorage";
 import GeneralPage from "@/app/components/GeneralPage";
 import {useTranslation} from "react-i18next";
+import {fetchScmUser} from "@/app/services/user/userService";
 
 type User = {
     name: string;
@@ -32,20 +32,8 @@ export default function AccountPage() {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const token = await getToken();
-
-                if (!token) {
-                    router.replace("/login");
-                    return;
-                }
-
-                const response = await API.get("/user", {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                setUser(response.data);
+                const fetchedUser = await fetchScmUser();
+                setUser(fetchedUser);
             } catch {
                 Alert.alert("Error", "Unable to load user information.");
                 router.replace("/login");
@@ -59,7 +47,7 @@ export default function AccountPage() {
 
     const handleLogout = async () => {
         try {
-            await removeToken();
+            await removeScmToken();
             router.replace("/login");
         } catch {
             Alert.alert("Error", "Unable to remove token.");

@@ -8,7 +8,7 @@ import {
     View,
 } from 'react-native';
 import {useTranslation} from "react-i18next";
-import API from "@/app/services/api";
+import ApiService from "@/app/services/apiService";
 import {getToken} from "@/app/services/tokenStorage";
 
 type FilterGeneralType = {
@@ -232,7 +232,7 @@ export function Filter<TPageData>({
         setPageDataError(null);
         setPageData(emptyPageData);
 
-        API.get(pageDataRoute, {
+        ApiService.get(pageDataRoute, {
             headers: {Authorization: `Bearer ${token}`},
             params: payload,
         })
@@ -285,7 +285,7 @@ export function Filter<TPageData>({
     ) => {
         const token = await getToken();
         payload.headers = {Authorization: `Bearer ${token}`}
-        await API
+        await ApiService
             .get(url, payload)
             .then((res) => callBackFunction(res.data))
             .catch((err) => console.error('Error sending API request:', err));
