@@ -1,7 +1,7 @@
 import React from "react";
 import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import {useTranslation} from "react-i18next";
-import {setStorage} from "@/app/services/storage";
+import {setStorage} from "@/app/services/storage/storage";
 
 const LANGUAGES = [
     {code: "hy", label: "Հայ"},

@@ -3,8 +3,8 @@ import GeneralPage from "@/app/components/GeneralPage";
 import {FlatList, StyleSheet, Text, View} from "react-native";
 import React, {useEffect, useState} from "react";
 import {useTranslation} from "react-i18next";
-import ApiService from "@/app/services/apiService";
-import {getToken} from "@/app/services/tokenStorage";
+import ApiService from "@/app/services/api/apiService";
+import {getScmToken} from "@/app/services/storage/tokenStorage";
 
 type NotificationRowType = {
     id: string;
@@ -26,7 +26,7 @@ export default function Notification() {
 
     useEffect(() => {
         const fetchNotifications = async () => {
-            const token = await getToken();
+            const token = await getScmToken();
 
             setLoading(true);
             setError(null);

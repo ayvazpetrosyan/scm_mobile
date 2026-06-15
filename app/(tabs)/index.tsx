@@ -5,26 +5,76 @@ import {MaterialCommunityIcons} from '@expo/vector-icons';
 import GeneralPage from "@/app/components/GeneralPage";
 import React from "react";
 import {useTranslation} from "react-i18next";
+import type {UserRole} from "@/app/types/user";
 
 type MenuItem = {
     key: string;
     title: string;
     href: Href;
     icon: React.ComponentProps<typeof MaterialCommunityIcons>['name'];
+    roles: UserRole[];
 };
 
 const App = () => {
     const {t} = useTranslation();
 
     const DATA: MenuItem[] = [
-        {key: 'schedule', title: t('Schedule'), href: '/schedule', icon: 'calendar-month'},
-        {key: 'journal', title: t('Journal'), href: '/journal', icon: 'book-open-page-variant'},
-        {key: 'task', title: t('Task'), href: '/task', icon: 'clipboard-check-outline'},
-        {key: 'semester', title: t('Semester'), href: '/semester', icon: 'chart-bar'},
-        {key: 'absent', title: t('Absent'), href: '/absent', icon: 'account-off'},
-        {key: 'finance', title: t('Finance'), href: '/finance', icon: 'finance'},
-        {key: 'transport', title: t('Transport'), href: '/transport', icon: 'bus'},
-        {key: 'canteen', title: t('Canteen'), href: '/canteen', icon: 'silverware-fork-knife'},
+        {
+            key: 'schedule',
+            title: t('Schedule'),
+            href: '/schedule',
+            icon: 'calendar-month',
+            roles: ['student', 'parent', 'teacher', 'admin'],
+        },
+        {
+            key: 'journal',
+            title: t('Journal'),
+            href: '/journal',
+            icon: 'book-open-page-variant',
+            roles: ['student', 'parent', 'teacher', 'admin'],
+        },
+        {
+            key: 'task',
+            title: t('Task'),
+            href: '/task',
+            icon: 'clipboard-check-outline',
+            roles: ['student', 'parent', 'teacher'],
+        },
+        {
+            key: 'semester',
+            title: t('Semester'),
+            href: '/semester',
+            icon: 'chart-bar',
+            roles: ['student', 'parent', 'teacher', 'admin'],
+        },
+        {
+            key: 'absent',
+            title: t('Absent'),
+            href: '/absent',
+            icon: 'account-off',
+            roles: ['parent', 'teacher', 'admin'],
+        },
+        {
+            key: 'finance',
+            title: t('Finance'),
+            href: '/finance',
+            icon: 'finance',
+            roles: ['parent', 'admin'],
+        },
+        {
+            key: 'transport',
+            title: t('Transport'),
+            href: '/transport',
+            icon: 'bus',
+            roles: ['student', 'parent', 'admin'],
+        },
+        {
+            key: 'canteen',
+            title: t('Canteen'),
+            href: '/canteen',
+            icon: 'silverware-fork-knife',
+            roles: ['student', 'parent', 'admin'],
+        },
     ];
 
     return (
@@ -72,6 +122,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#ffffff',
         borderRadius: 16,
         paddingVertical: 20,
+        paddingHorizontal: 8,
         alignItems: 'center',
         justifyContent: 'center',
         shadowColor: '#000',
@@ -91,6 +142,13 @@ const styles = StyleSheet.create({
         fontSize: 12,
         fontWeight: '600',
         color: '#2d3e50',
+        textAlign: 'center',
+    },
+    rolesText: {
+        marginTop: 6,
+        fontSize: 10,
+        fontWeight: '500',
+        color: '#64748b',
         textAlign: 'center',
     },
 });

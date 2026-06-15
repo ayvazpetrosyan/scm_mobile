@@ -1,11 +1,9 @@
 import {getStorage, removeStorage, setStorage} from "@/app/services/storage/storage";
+import type {User} from "@/app/types/user";
 
 const USER_STORAGE_KEY = 'scmUser';
 
-export async function setScmUser(user: {
-    name: string;
-    email: string;
-}) {
+export async function setScmUser(user: User) {
     await setStorage(USER_STORAGE_KEY, JSON.stringify(user));
 }
 

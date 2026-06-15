@@ -15,13 +15,8 @@ import {removeScmToken} from "@/app/services/storage/tokenStorage";
 import GeneralPage from "@/app/components/GeneralPage";
 import {useTranslation} from "react-i18next";
 import {fetchScmUser} from "@/app/services/user/userService";
-
-type User = {
-    name: string;
-    email: string;
-    phone?: string;
-    photo?: string;
-};
+import {removeScmUser} from "@/app/services/storage/userStorage";
+import type {User} from "@/app/types/user";
 
 export default function AccountPage() {
     const router = useRouter();
@@ -48,6 +43,7 @@ export default function AccountPage() {
     const handleLogout = async () => {
         try {
             await removeScmToken();
+            await removeScmUser();
             router.replace("/login");
         } catch {
             Alert.alert("Error", "Unable to remove token.");

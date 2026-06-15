@@ -8,8 +8,8 @@ import {
     View,
 } from 'react-native';
 import {useTranslation} from "react-i18next";
-import ApiService from "@/app/services/apiService";
-import {getToken} from "@/app/services/tokenStorage";
+import ApiService from "@/app/services/api/apiService";
+import {getScmToken} from "@/app/services/storage/tokenStorage";
 
 type FilterGeneralType = {
     id: string;
@@ -218,7 +218,7 @@ export function Filter<TPageData>({
         if (!pageDataRoute || !setPageDataLoading || !setPageDataError || !setPageData) {
             return;
         }
-        const token = await getToken();
+        const token = await getScmToken();
 
         const payload = {
             semesterId: updated.semesterId ?? data.semesterId ?? null,
@@ -283,7 +283,7 @@ export function Filter<TPageData>({
         callBackFunction: (value: (((prevState: FilterGeneralType[]) => FilterGeneralType[]) | FilterGeneralType[])) => void,
         payload: any = {},
     ) => {
-        const token = await getToken();
+        const token = await getScmToken();
         payload.headers = {Authorization: `Bearer ${token}`}
         await ApiService
             .get(url, payload)
@@ -407,7 +407,7 @@ export function Filter<TPageData>({
                         onChange={(option) => {
                             const value = option ? option.value : null;
                             setData('semesterId', value);
-                            getData({...data, semesterId: value});
+                            getData({...data, semesterId: value}).then(r => console.log('Semester filter load result: ', r));
                         }}
                     />
                     {errors.semesterId ? (
@@ -438,7 +438,7 @@ export function Filter<TPageData>({
                         onChange={(option) => {
                             const value = option ? option.value : null;
                             setData('monthId', value);
-                            getData({...data, monthId: value});
+                            getData({...data, monthId: value}).then(r => console.log('Month filter load result: ', r));
                         }}
                     />
                     {errors.monthId ? (
@@ -480,7 +480,7 @@ export function Filter<TPageData>({
                                 getStudentsByClass(value);
                             }
 
-                            getData({...data, classId: value, subjectId: null, studentId: null});
+                            getData({...data, classId: value, subjectId: null, studentId: null}).then(r => console.log('Class filter load result: ', r));
                         }}
                     />
                     {errors.classId ? (
@@ -513,7 +513,7 @@ export function Filter<TPageData>({
                             setData('classId', value);
                             setData('subjectId', null);
                             getSubjectsByCurrentUserAndCLass(value);
-                            getData({...data, classId: value, subjectId: null});
+                            getData({...data, classId: value, subjectId: null}).then(r => console.log('Subject by user and class filter load result: ', r));
                         }}
                     />
                     {errors.classId ? (
@@ -544,7 +544,7 @@ export function Filter<TPageData>({
                         onChange={(option) => {
                             const value = option ? option.value : null;
                             setData('subjectId', value);
-                            getData({...data, subjectId: value});
+                            getData({...data, subjectId: value}).then(r => console.log('Subject filter load result: ', r));
                         }}
                     />
                     {errors.subjectId ? (
@@ -575,7 +575,7 @@ export function Filter<TPageData>({
                         onChange={(option) => {
                             const value = option ? option.value : null;
                             setData('studentId', value);
-                            getData({...data, studentId: value});
+                            getData({...data, studentId: value}).then(r => console.log('Student by class filter load result: ', r));
                         }}
                     />
                     {errors.studentId ? (

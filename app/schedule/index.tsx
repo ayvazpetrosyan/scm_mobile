@@ -8,8 +8,8 @@ import {
 import GeneralPage from "@/app/components/GeneralPage";
 import {Stack} from "expo-router";
 import {useTranslation} from "react-i18next";
-import {getToken, removeToken} from "@/app/services/tokenStorage";
-import ApiService from "@/app/services/apiService";
+import {getScmToken} from "@/app/services/storage/tokenStorage";
+import ApiService from "@/app/services/api/apiService";
 
 type ScheduleCellType = {
     id?: number | string;
@@ -77,7 +77,7 @@ export default function Schedule() {
 
     useEffect(() => {
         const fetchSchedule = async () => {
-            const token = await getToken();
+            const token = await getScmToken();
             if (!token) {
                 setError("No token found");
                 return;

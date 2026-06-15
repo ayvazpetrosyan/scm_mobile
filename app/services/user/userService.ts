@@ -1,11 +1,15 @@
 import ApiService from "../api/apiService";
 import {getScmUser, isExistScmUser} from "@/app/services/storage/userStorage";
 import {getScmToken} from "@/app/services/storage/tokenStorage";
+import type {User} from "@/app/types/user";
 
-export async function fetchScmUser() {
+export async function fetchScmUser(): Promise<User | null> {
     if (await isExistScmUser()) {
         const userFromStorage = await getScmUser()
-        return JSON.parse(typeof userFromStorage === "string" ? userFromStorage : '');
+        if (typeof userFromStorage !== "string") {
+            return null;
+        }
+        return JSON.parse(userFromStorage) as User;
     }
 
     const token = await getScmToken();

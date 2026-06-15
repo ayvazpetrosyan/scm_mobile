@@ -32,6 +32,11 @@
   "Welcome": "Բարի գալուստ",
   "Loading...": "Բեռնվում է...",
   "Notification Details": "Ծանուցման մանրամասներ",
+  "Select semester": "Ընտրել կիսամյակը",
+  "Select month": "Ընտրել ամիսը",
+  "Select class": "Ընտրել դասարանը",
+  "Select subject": "Ընտրել առարկան",
+  "Select student": "Ընտրել ուսանող",
   "common": {
     "home": "Գլխավոր",
     "account": "Հաշիվ",

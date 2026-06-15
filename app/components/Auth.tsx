@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { useRouter } from "expo-router";
-import {getToken, removeToken} from "@/app/services/tokenStorage";
-import Api from "@/app/services/apiService";
+import {getScmToken, removeScmToken} from "@/app/services/storage/tokenStorage";
+import Api from "@/app/services/api/apiService";
 
 type AuthProps = {
     children: React.ReactNode;
@@ -17,7 +17,7 @@ export default function Auth({ children }: AuthProps) {
     useEffect(() => {
         const checkAuth = async () => {
             try {
-                const token = await getToken();
+                const token = await getScmToken();
 
                 if (!token) {
                     router.replace("/login");
@@ -32,7 +32,7 @@ export default function Auth({ children }: AuthProps) {
 
                 setAuthenticated(true);
             } catch {
-                await removeToken();
+                await removeScmToken();
                 router.replace("/login");
             } finally {
                 setChecking(false);

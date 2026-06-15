@@ -17,13 +17,7 @@ import LanguageSwitcher from "./LanguageSwitcher";
 import {Ionicons, MaterialCommunityIcons} from "@expo/vector-icons";
 import {useTranslation} from "react-i18next";
 import {fetchScmUser} from "@/app/services/user/userService";
-
-type User = {
-    name: string;
-    email: string;
-    phone?: string;
-    photo?: string;
-};
+import type {User} from "@/app/types/user";
 
 type GeneralPageProps = {
     title?: string;
@@ -61,9 +55,13 @@ export default function GeneralPage({
 
     useEffect(() => {
         const fetchUser = async () => {
-            debugger;
             try {
                 const fetchedUser = await fetchScmUser();
+                if (fetchedUser === null || fetchedUser === undefined) {
+                    await removeScmToken();
+                    router.replace("/login");
+                }
+
                 setUser(fetchedUser);
             } catch {
                 await removeScmToken();
