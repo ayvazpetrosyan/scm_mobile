@@ -3,10 +3,12 @@ import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
 import {Link, type Href} from 'expo-router';
 import {MaterialCommunityIcons} from '@expo/vector-icons';
 import GeneralPage from "@/app/components/GeneralPage";
-import React from "react";
+import React, {useEffect, useState} from "react";
 import {useTranslation} from "react-i18next";
+import ApiService from "@/app/services/api/apiService";
+import {getScmToken} from "@/app/services/storage/tokenStorage";
 
-type MenuItem = {
+type MenuItemType = {
     key: string;
     title: string;
     href: Href;
@@ -14,10 +16,16 @@ type MenuItem = {
     permission: string;
 };
 
+type PermissionType = {
+    name: string;
+};
+
+type PermissionListType = PermissionType[];
+
 const App = () => {
     const {t} = useTranslation();
 
-    const DATA: MenuItem[] = [
+    const mainNavItems: MenuItemType[] = [
         {
             key: 'schedule',
             title: t('Schedule'),
@@ -76,13 +84,48 @@ const App = () => {
         },
     ];
 
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [userPermissions, setPermissions] = useState<PermissionListType>([]);
+
+    useEffect(() => {
+        const fetchPermissions = async () => {
+            try {
+                const token = await getScmToken();
+                if (!token) {
+                    setError("No token found");
+                    return;
+                }
+
+                setLoading(true);
+                setError(null);
+
+                const response = await ApiService.get('/permission', {
+                    headers: {Authorization: `Bearer ${token}`},
+                });
+                setPermissions(response.data);
+            } catch (error) {
+                console.error('Error fetching permissions:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        void fetchPermissions();
+    }, []);
+
+    // filter items based on permissions
+    const visibleItems = mainNavItems.filter((item) =>
+        !item.permission || userPermissions.some((permission) => permission.name === item.permission)
+    );
+
     return (
         // If there is FlatList child element, the scroll must be false
         <GeneralPage showHomeButton={false} showBackButton={false} showUserHeader={true} scroll={false}>
             <SafeAreaProvider>
                 <SafeAreaView style={styles.container} edges={['top']}>
                     <FlatList
-                        data={DATA}
+                        data={visibleItems}
                         numColumns={2}
                         keyExtractor={(item) => item.key}
                         contentContainerStyle={styles.grid}
