@@ -16,7 +16,7 @@ import {removeScmToken} from "@/app/services/storage/tokenStorage";
 import LanguageSwitcher from "./LanguageSwitcher";
 import {Ionicons, MaterialCommunityIcons} from "@expo/vector-icons";
 import {useTranslation} from "react-i18next";
-import {fetchScmUser} from "@/app/services/user/userService";
+import {fetchUserFromStorage} from "@/app/services/user/userService";
 import type {User} from "@/app/types/user";
 
 type GeneralPageProps = {
@@ -56,7 +56,7 @@ export default function GeneralPage({
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const fetchedUser = await fetchScmUser();
+                const fetchedUser = await fetchUserFromStorage();
                 if (fetchedUser === null || fetchedUser === undefined) {
                     await removeScmToken();
                     router.replace("/login");

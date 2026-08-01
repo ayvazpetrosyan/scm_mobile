@@ -5,7 +5,7 @@ import type {User} from "@/app/types/user";
 
 export async function fetchScmUser(): Promise<User | null> {
     if (await isExistScmUser()) {
-        const userFromStorage = await getScmUser()
+        const userFromStorage = await getScmUser();
         if (typeof userFromStorage !== "string") {
             return null;
         }
@@ -25,4 +25,17 @@ export async function fetchScmUser(): Promise<User | null> {
     });
 
     return response.data;
+}
+
+export async function fetchUserFromStorage(): Promise<User | null> {
+    if (!await isExistScmUser()) {
+        return null;
+    }
+
+    const userFromStorage = await getScmUser();
+    if (typeof userFromStorage !== "string") {
+        return null;
+    }
+
+    return JSON.parse(userFromStorage) as User;
 }

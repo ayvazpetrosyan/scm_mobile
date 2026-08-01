@@ -19,9 +19,7 @@ import {setScmUser} from "@/app/services/storage/userStorage";
 
 export default function LoginPage() {
     const {t} = useTranslation();
-
     const router = useRouter();
-
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 

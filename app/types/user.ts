@@ -1,9 +1,12 @@
-export type UserRole = 'student' | 'parent' | 'teacher' | 'admin';
-
 export type User = {
     name: string;
+    userName: string;
     email: string;
+    roleTechnicalName?: string;
+    photo: string;
     phone?: string;
-    photo?: string;
-    roles?: UserRole[];
+    permissions: {
+        controller: string;
+        action: string;
+    }[];
 };
