@@ -1,19 +1,11 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, {useMemo, useState} from "react";
 import {
     ActivityIndicator,
-    Platform,
-    ScrollView,
     StyleSheet,
     Text,
     View,
 } from "react-native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { WebView } from "react-native-webview";
-import { useTranslation } from "react-i18next";
-
-import GeneralPage from "@/app/components/GeneralPage";
-import type { User } from "@/app/types/user";
-import { getScmUser } from "@/app/services/storage/userStorage";
+import {WebView} from "react-native-webview";
 
 export type TransportMapPoint = {
     title: string;
@@ -31,7 +23,7 @@ type TransportMapProps = {
     height?: number;
 };
 
-const transportMapCenter = {
+const defaultMapCenter = {
     lat: 40.1872,
     lng: 44.5152,
 };
@@ -54,40 +46,12 @@ const defaultMarkedPoints: TransportMapPoint[] = [
     },
 ];
 
-function InfoRow({
-                     icon,
-                     label,
-                     value,
-                 }: {
-    icon: keyof typeof MaterialCommunityIcons.glyphMap;
-    label: string;
-    value?: string | null;
-}) {
-    return (
-        <View style={styles.row}>
-            <MaterialCommunityIcons
-                name={icon}
-                size={24}
-                color="#1976D2"
-                style={styles.icon}
-            />
-
-            <View style={styles.textContainer}>
-                <Text style={styles.label}>{label}</Text>
-                <Text style={styles.value}>
-                    {value && value.trim() !== "" ? value : "-"}
-                </Text>
-            </View>
-        </View>
-    );
-}
-
-function TransportMap({
-                         points = defaultMarkedPoints,
-                         center = transportMapCenter,
-                         zoom = 13,
-                         height = 600,
-                     }: TransportMapProps) {
+export default function TransportMap({
+                                         points = defaultMarkedPoints,
+                                         center = defaultMapCenter,
+                                         zoom = 13,
+                                         height = 600,
+                                     }: TransportMapProps) {
     const [mapError, setMapError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -198,23 +162,6 @@ function TransportMap({
         );
     }
 
-    if (Platform.OS === "web") {
-        return (
-            <View style={[styles.container, {height}]}>
-                <iframe
-                    title="Transport map"
-                    srcDoc={html}
-                    style={{
-                        width: "100%",
-                        height: "100%",
-                        border: 0,
-                        borderRadius: 16,
-                    }}
-                />
-            </View>
-        );
-    }
-
     return (
         <View style={[styles.container, {height}]}>
             {mapError ? (
@@ -253,145 +200,14 @@ function TransportMap({
     );
 }
 
-export default function Transport() {
-    const [user, setUser] = useState<User | null>(null);
-    const { t } = useTranslation();
-
-    useEffect(() => {
-        const fetchUser = async () => {
-            const userFromStorage = await getScmUser();
-
-            if (typeof userFromStorage !== "string") {
-                return;
-            }
-
-            const parsedUser: User = JSON.parse(userFromStorage);
-            setUser(parsedUser);
-        };
-
-        void fetchUser();
-    }, []);
-
-    const hasShareLocationPermission =
-        user?.permissions?.some(
-            (p) =>
-                p.controller === "Transport" &&
-                p.action === "shareLocation"
-        ) ?? false;
-
-    return (
-        <GeneralPage
-            showUserHeader={false}
-        >
-            <ScrollView contentContainerStyle={styles.container}>
-                {hasShareLocationPermission ? (
-                    <View style={styles.infoContainer}>
-                        <InfoRow
-                            icon="account"
-                            label={t("Name")}
-                            value={user?.name}
-                        />
-
-                        <InfoRow
-                            icon="map-marker"
-                            label={t("Vehicle title on map")}
-                            value={user?.vehicleTitleOnMap}
-                        />
-
-                        <InfoRow
-                            icon="routes"
-                            label={t("Transport line number")}
-                            value={user?.vehicleLineName}
-                        />
-
-                        <InfoRow
-                            icon="card-text"
-                            label={t("Vehicle registration number")}
-                            value={user?.vehicleRegistrationNumber}
-                        />
-
-                        <InfoRow
-                            icon="bus"
-                            label={t("Vehicle name")}
-                            value={user?.vehicleDescription}
-                        />
-
-                        <InfoRow
-                            icon="text-box-outline"
-                            label={t("Vehicle description")}
-                            value={user?.vehicleInfo}
-                        />
-                    </View>
-                ) : (
-                    <View style={styles.infoContainer}>
-                        <TransportMap
-                            center={transportMapCenter}
-                            points={defaultMarkedPoints}
-                            zoom={13}
-                            height={600}
-                        />
-                    </View>
-                )}
-            </ScrollView>
-        </GeneralPage>
-    );
-}
-
 const styles = StyleSheet.create({
     container: {
-        flexGrow: 1,
-        padding: 20,
-        backgroundColor: "#F5F7FA",
-    },
-
-    infoContainer: {
-        backgroundColor: "#FFFFFF",
-        borderRadius: 12,
-        padding: 18,
-        elevation: 3,
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.1,
-        shadowRadius: 5,
-    },
-
-    row: {
-        flexDirection: "row",
-        alignItems: "center",
-        paddingVertical: 12,
-        borderBottomWidth: StyleSheet.hairlineWidth,
-        borderBottomColor: "#E5E5E5",
-    },
-
-    icon: {
-        width: 30,
-    },
-
-    textContainer: {
-        flex: 1,
-        marginLeft: 12,
-    },
-
-    label: {
-        fontSize: 13,
-        color: "#777",
-        marginBottom: 3,
-    },
-
-    value: {
-        fontSize: 16,
-        fontWeight: "600",
-        color: "#222",
-    },
-
-    noPermissionText: {
-        textAlign: "center",
-        fontSize: 16,
-        color: "#666",
-        paddingVertical: 20,
+        width: "100%",
+        overflow: "hidden",
+        borderRadius: 16,
+        backgroundColor: "#ffffff",
+        borderWidth: 1,
+        borderColor: "#e2e8f0",
     },
 
     webView: {
