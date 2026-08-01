@@ -3,6 +3,7 @@ import * as TaskManager from "expo-task-manager";
 import ApiService from "@/app/services/api/apiService";
 import {getScmToken} from "@/app/services/storage/tokenStorage";
 import {fetchUserFromStorage} from "@/app/services/user/userService";
+import {Platform} from "react-native";
 
 const DRIVER_LOCATION_TASK_NAME = "driver-background-location-task";
 
@@ -43,37 +44,39 @@ async function sendLocationToApi(latitude: number, longitude: number): Promise<S
     return response.data;
 }
 
-TaskManager.defineTask(
-    DRIVER_LOCATION_TASK_NAME,
-    async ({data, error}: TaskManager.TaskManagerTaskBody<{ locations: Location.LocationObject[] }>) => {
-        if (error) {
-            console.error("Background location task error:", error);
-            return;
-        }
+if (Platform.OS !== "web") {
+    TaskManager.defineTask(
+        DRIVER_LOCATION_TASK_NAME,
+        async ({data, error}: TaskManager.TaskManagerTaskBody<{ locations: Location.LocationObject[] }>) => {
+            if (error) {
+                console.error("Background location task error:", error);
+                return;
+            }
 
-        const canShareLocation = await canCurrentUserShareLocation();
+            const canShareLocation = await canCurrentUserShareLocation();
 
-        if (!canShareLocation) {
-            await stopDriverLocationTracking();
-            return;
-        }
+            if (!canShareLocation) {
+                await stopDriverLocationTracking();
+                return;
+            }
 
-        const location = data?.locations?.[0];
+            const location = data?.locations?.[0];
 
-        if (!location) {
-            return;
-        }
+            if (!location) {
+                return;
+            }
 
-        try {
-            await sendLocationToApi(
-                location.coords.latitude,
-                location.coords.longitude,
-            );
-        } catch (sendError) {
-            console.error("Error sending background location:", sendError);
-        }
-    },
-);
+            try {
+                await sendLocationToApi(
+                    location.coords.latitude,
+                    location.coords.longitude,
+                );
+            } catch (sendError) {
+                console.error("Error sending background location:", sendError);
+            }
+        },
+    );
+}
 
 export async function shareCurrentUserLocation(): Promise<ShareLocationResponse> {
     const {status} = await Location.requestForegroundPermissionsAsync();
@@ -103,6 +106,9 @@ export async function shareCurrentUserLocationIfAllowed(): Promise<void> {
 }
 
 export async function startDriverLocationTrackingIfAllowed(): Promise<void> {
+    if (Platform.OS === "web") {
+        return;
+    }
     const canShareLocation = await canCurrentUserShareLocation();
 
     if (!canShareLocation) {
@@ -122,7 +128,7 @@ export async function startDriverLocationTrackingIfAllowed(): Promise<void> {
         throw new Error("Background location permission denied");
     }
 
-    const hasStarted = await Location.hasStartedLocationUpdatesAsync(
+    const hasStarted = await TaskManager.isTaskRegisteredAsync(
         DRIVER_LOCATION_TASK_NAME,
     );
 
@@ -145,7 +151,10 @@ export async function startDriverLocationTrackingIfAllowed(): Promise<void> {
 }
 
 export async function stopDriverLocationTracking(): Promise<void> {
-    const hasStarted = await Location.hasStartedLocationUpdatesAsync(
+    if (Platform.OS === "web") {
+        return;
+    }
+    const hasStarted = await TaskManager.isTaskRegisteredAsync(
         DRIVER_LOCATION_TASK_NAME,
     );
 
