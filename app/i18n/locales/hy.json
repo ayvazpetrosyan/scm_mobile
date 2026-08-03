@@ -42,6 +42,13 @@
   "Vehicle registration number": "Ավտոմեքենայի համարը",
   "Vehicle name": "Ավտոմեքենայի անվանումը",
   "Vehicle description": "Ավտոմեքենայի նկարագրությունը",
+  "Order history": "Պատվերների պատմություն",
+  "Here you can see your order history for the last": "Այստեղ կարող եք տեսնել ձեր պատվերների պատմությունը վերջին",
+  "weeks.": "շաբաթների համար։",
+  "Date": "Ամսաթիվ",
+  "Dishes": "Ուտեստներ",
+  "Total price": "Ընդհանուր գին",
+  "AMD": "դրամ",
   "common": {
     "home": "Գլխավոր",
     "account": "Հաշիվ",
