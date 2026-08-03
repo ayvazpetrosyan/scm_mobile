@@ -7,7 +7,6 @@ import {
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
-
 import GeneralPage from "@/app/components/GeneralPage";
 import type { User } from "@/app/types/user";
 import { getScmUser } from "@/app/services/storage/userStorage";
@@ -21,26 +20,11 @@ export type TransportMapPoint = {
 
 const defaultMarkedPoints: TransportMapPoint[] = [
     {
-        title: "Point 1",
+        title: "Test point",
         lat: 40.1872,
         lng: 44.5152,
     },
-    {
-        title: "Point 2",
-        lat: 40.1792,
-        lng: 44.4991,
-    },
-    {
-        title: "Point 3",
-        lat: 40.1938,
-        lng: 44.5035,
-    },
 ];
-
-const defaultMapCenter = {
-    lat: 40.1872,
-    lng: 44.5152,
-};
 
 function InfoRow({
                      icon,
@@ -142,10 +126,7 @@ export default function Transport() {
                 ) : (
                     <View style={styles.infoContainer}>
                         <TransportMap
-                            center={defaultMapCenter}
                             points={defaultMarkedPoints}
-                            zoom={13}
-                            height={800}
                         />
                     </View>
                 )}

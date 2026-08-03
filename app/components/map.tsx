@@ -23,34 +23,16 @@ type TransportMapProps = {
     height?: number;
 };
 
-const defaultMarkedPoints: TransportMapPoint[] = [
-    {
-        title: "Point 1",
-        lat: 40.1872,
-        lng: 44.5152,
-    },
-    {
-        title: "Point 2",
-        lat: 40.1792,
-        lng: 44.4991,
-    },
-    {
-        title: "Point 3",
-        lat: 40.1938,
-        lng: 44.5035,
-    },
-];
-
 const transportMapCenter = {
     lat: 40.1872,
     lng: 44.5152,
 };
 
 export function TransportMap({
-                          points = defaultMarkedPoints,
+                          points,
                           center = transportMapCenter,
                           zoom = 13,
-                          height = 600,
+                          height = 800,
                       }: TransportMapProps) {
     const [mapError, setMapError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
