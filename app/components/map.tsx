@@ -1,6 +1,6 @@
 import React, {useMemo, useState} from "react";
 import {
-    ActivityIndicator,
+    ActivityIndicator, Platform,
     StyleSheet,
     Text,
     View,
@@ -23,11 +23,6 @@ type TransportMapProps = {
     height?: number;
 };
 
-const defaultMapCenter = {
-    lat: 40.1872,
-    lng: 44.5152,
-};
-
 const defaultMarkedPoints: TransportMapPoint[] = [
     {
         title: "Point 1",
@@ -46,12 +41,17 @@ const defaultMarkedPoints: TransportMapPoint[] = [
     },
 ];
 
-export default function TransportMap({
-                                         points = defaultMarkedPoints,
-                                         center = defaultMapCenter,
-                                         zoom = 13,
-                                         height = 600,
-                                     }: TransportMapProps) {
+const transportMapCenter = {
+    lat: 40.1872,
+    lng: 44.5152,
+};
+
+export function TransportMap({
+                          points = defaultMarkedPoints,
+                          center = transportMapCenter,
+                          zoom = 13,
+                          height = 600,
+                      }: TransportMapProps) {
     const [mapError, setMapError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -158,6 +158,23 @@ export default function TransportMap({
                 <Text style={styles.errorText}>
                     Google Maps API key is missing.
                 </Text>
+            </View>
+        );
+    }
+
+    if (Platform.OS === "web") {
+        return (
+            <View style={[styles.container, {height}]}>
+                <iframe
+                    title="Transport map"
+                    srcDoc={html}
+                    style={{
+                        width: "100%",
+                        height: "100%",
+                        border: 0,
+                        borderRadius: 16,
+                    }}
+                />
             </View>
         );
     }
