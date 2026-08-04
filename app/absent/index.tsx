@@ -18,7 +18,6 @@ type AbsentType = AbsentRowType[];
 
 export default function Absent() {
     const {t} = useTranslation();
-
     const [pageData, setPageData] = useState<AbsentType>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);

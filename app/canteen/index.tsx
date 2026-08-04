@@ -31,7 +31,6 @@ type OrderResponseType = {
 
 export default function Canteen() {
     const {t} = useTranslation();
-
     const [orderHistory, setOrderHistory] = useState<OrderHistoryType[]>([]);
     const [weekCountForOrderHistory, setWeekCountForOrderHistory] = useState(0);
     const [loading, setLoading] = useState(false);
@@ -60,7 +59,7 @@ export default function Canteen() {
                 });
         };
 
-        getOrderHistory();
+        getOrderHistory().then(r => console.error('order history'));
     }, []);
 
     return (
