@@ -124,7 +124,11 @@ const App = () => {
         <GeneralPage showHomeButton={false} showBackButton={false} showUserHeader={true} scroll={false}>
             <SafeAreaProvider>
                 <SafeAreaView style={styles.container} edges={['top']}>
-                    <FlatList
+                    {loading ? (
+                        <Text style={styles.messageText}>{t('Loading...')}</Text>
+                    ) : error ? (
+                        <Text style={styles.messageText}>{t('No data found')}</Text>
+                    ) : (<FlatList
                         data={visibleItems}
                         numColumns={2}
                         keyExtractor={(item) => item.key}
@@ -142,7 +146,7 @@ const App = () => {
                                 <Text style={styles.cardText}>{item.title}</Text>
                             </Link>
                         )}
-                    />
+                    />)}
                 </SafeAreaView>
             </SafeAreaProvider>
         </GeneralPage>
@@ -150,6 +154,12 @@ const App = () => {
 };
 
 const styles = StyleSheet.create({
+    messageText: {
+        color: '#64748b',
+        fontSize: 16,
+        textAlign: 'center',
+        marginTop: 20,
+    },
     container: {
         flex: 1,
         paddingTop: StatusBar.currentHeight,

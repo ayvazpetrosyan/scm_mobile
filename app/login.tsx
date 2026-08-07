@@ -80,7 +80,7 @@ export default function LoginPage() {
                         <Icon name="email" size={22} color="#777" style={styles.inputIcon}/>
                         <TextInput
                             style={styles.input}
-                            placeholder="Email or username"
+                            placeholder={t('Username')}
                             placeholderTextColor="#999"
                             value={email}
                             onChangeText={setEmail}
@@ -94,7 +94,7 @@ export default function LoginPage() {
                         <Icon name="lock" size={22} color="#777" style={styles.inputIcon}/>
                         <TextInput
                             style={styles.input}
-                            placeholder="Password"
+                            placeholder={t('Password')}
                             placeholderTextColor="#999"
                             value={password}
                             onChangeText={setPassword}

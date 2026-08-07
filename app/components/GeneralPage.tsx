@@ -151,11 +151,11 @@ export default function GeneralPage({
                             <Text style={styles.userName} numberOfLines={1}>
                                 {user?.name}
                             </Text>
-                            {user?.email ? (
-                                <Text style={styles.userEmail} numberOfLines={1}>
-                                    {user.email}
-                                </Text>
-                            ) : null}
+                            {/*{user?.email ? (*/}
+                            {/*    <Text style={styles.userEmail} numberOfLines={1}>*/}
+                            {/*        {user.email}*/}
+                            {/*    </Text>*/}
+                            {/*) : null}*/}
                         </View>
 
                         {user?.photo ? (
@@ -264,7 +264,7 @@ const styles = StyleSheet.create({
         backgroundColor: "#ffffff",
         borderRadius: 16,
         padding: 14,
-        marginBottom: 12,
+        marginBottom: 1,
         shadowColor: "#000",
         shadowOffset: {
             width: 0,

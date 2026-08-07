@@ -11,6 +11,7 @@ import GeneralPage from "@/app/components/GeneralPage";
 import type { User } from "@/app/types/user";
 import { getScmUser } from "@/app/services/storage/userStorage";
 import {TransportMap} from "@/app/components/map";
+import {startDriverLocationTrackingIfAllowed} from "@/app/services/location/locationService";
 
 export type TransportMapPoint = {
     title: string;
@@ -58,6 +59,13 @@ export default function Transport() {
     const [user, setUser] = useState<User | null>(null);
     const { t } = useTranslation();
 
+    const hasShareLocationPermission =
+        user?.permissions?.some(
+            (p) =>
+                p.controller === "Transport" &&
+                p.action === "shareLocation"
+        ) ?? false;
+
     useEffect(() => {
         const fetchUser = async () => {
             const userFromStorage = await getScmUser();
@@ -73,12 +81,19 @@ export default function Transport() {
         void fetchUser();
     }, []);
 
-    const hasShareLocationPermission =
-        user?.permissions?.some(
-            (p) =>
-                p.controller === "Transport" &&
-                p.action === "shareLocation"
-        ) ?? false;
+    useEffect(() => {
+        const startLocationTracking = async () => {
+            if (hasShareLocationPermission) {
+                try {
+                    await startDriverLocationTrackingIfAllowed();
+                } catch (error) {
+                    console.error("Error starting driver location tracking:", error);
+                }
+            }
+        };
+
+        void startLocationTracking();
+    }, [hasShareLocationPermission]);
 
     return (
         <GeneralPage

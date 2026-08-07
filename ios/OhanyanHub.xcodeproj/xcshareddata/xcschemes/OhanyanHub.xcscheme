@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "scmmobile.app"
-               BlueprintName = "scmmobile"
-               ReferencedContainer = "container:scmmobile.xcodeproj">
+               BuildableName = "OhanyanHub.app"
+               BlueprintName = "OhanyanHub"
+               ReferencedContainer = "container:OhanyanHub.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
-               BuildableName = "scmmobileTests.xctest"
-               BlueprintName = "scmmobileTests"
-               ReferencedContainer = "container:scmmobile.xcodeproj">
+               BuildableName = "OhanyanHubTests.xctest"
+               BlueprintName = "OhanyanHubTests"
+               ReferencedContainer = "container:OhanyanHub.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -55,9 +55,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "scmmobile.app"
-            BlueprintName = "scmmobile"
-            ReferencedContainer = "container:scmmobile.xcodeproj">
+            BuildableName = "OhanyanHub.app"
+            BlueprintName = "OhanyanHub"
+            ReferencedContainer = "container:OhanyanHub.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "scmmobile.app"
-            BlueprintName = "scmmobile"
-            ReferencedContainer = "container:scmmobile.xcodeproj">
+            BuildableName = "OhanyanHub.app"
+            BlueprintName = "OhanyanHub"
+            ReferencedContainer = "container:OhanyanHub.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

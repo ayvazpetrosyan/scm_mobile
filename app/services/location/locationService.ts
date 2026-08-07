@@ -41,6 +41,8 @@ async function sendLocationToApi(latitude: number, longitude: number): Promise<S
         },
     });
 
+    console.log('response', response);
+
     return response.data;
 }
 
@@ -56,6 +58,7 @@ if (Platform.OS !== "web") {
             const canShareLocation = await canCurrentUserShareLocation();
 
             if (!canShareLocation) {
+                console.log("No permission to share location");
                 await stopDriverLocationTracking();
                 return;
             }
@@ -63,6 +66,7 @@ if (Platform.OS !== "web") {
             const location = data?.locations?.[0];
 
             if (!location) {
+                console.log("Location is null");
                 return;
             }
 
@@ -111,7 +115,9 @@ export async function startDriverLocationTrackingIfAllowed(): Promise<void> {
     }
     const canShareLocation = await canCurrentUserShareLocation();
 
+    console.log('4444');
     if (!canShareLocation) {
+        console.log("Can`t share location");
         await stopDriverLocationTracking();
         return;
     }
