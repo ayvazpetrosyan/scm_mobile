@@ -7,7 +7,7 @@
     "icon": "./assets/images/scm_logo_1024-1024.png",
     "scheme": "scmmobile",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.schoolm.mobile",

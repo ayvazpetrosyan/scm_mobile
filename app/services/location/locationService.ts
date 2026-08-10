@@ -3,7 +3,8 @@ import * as TaskManager from "expo-task-manager";
 import ApiService from "@/app/services/api/apiService";
 import {getScmToken} from "@/app/services/storage/tokenStorage";
 import {fetchUserFromStorage} from "@/app/services/user/userService";
-import {Platform} from "react-native";
+import {Alert, Linking, Platform} from "react-native";
+import {t} from "i18next";
 
 const DRIVER_LOCATION_TASK_NAME = "driver-background-location-task";
 
@@ -41,7 +42,7 @@ async function sendLocationToApi(latitude: number, longitude: number): Promise<S
         },
     });
 
-    console.log('response', response);
+    console.log('response', response.data);
 
     return response.data;
 }
@@ -113,9 +114,27 @@ export async function startDriverLocationTrackingIfAllowed(): Promise<void> {
     if (Platform.OS === "web") {
         return;
     }
+
+    const hasLocationServicesEnabled = await Location.hasServicesEnabledAsync();
+
+    if (!hasLocationServicesEnabled) {
+        Alert.alert(
+            t("Location services disabled"),
+            t("Please enable location services so your vehicle location can be shared."),
+        );
+
+        return;
+    }
+
+    const isBackgroundLocationAvailable =
+        await Location.isBackgroundLocationAvailableAsync();
+
+    if (!isBackgroundLocationAvailable) {
+        console.log("Background location is not available on this device.");
+        return;
+    }
     const canShareLocation = await canCurrentUserShareLocation();
 
-    console.log('4444');
     if (!canShareLocation) {
         console.log("Can`t share location");
         await stopDriverLocationTracking();
@@ -123,15 +142,49 @@ export async function startDriverLocationTrackingIfAllowed(): Promise<void> {
     }
 
     const foregroundPermission = await Location.requestForegroundPermissionsAsync();
-
+    console.log("Foreground permission status: ", foregroundPermission.status);
     if (foregroundPermission.status !== Location.PermissionStatus.GRANTED) {
-        throw new Error("Foreground location permission denied");
+        Alert.alert(
+            t("Location permission required"),
+            t("Please allow location access so your vehicle location can be shared."),
+            [
+                {
+                    text: t("Cancel"),
+                    style: "cancel",
+                },
+                {
+                    text: t("Open Settings"),
+                    onPress: () => {
+                        void Linking.openSettings();
+                    },
+                },
+            ],
+        );
+
+        return;
     }
 
     const backgroundPermission = await Location.requestBackgroundPermissionsAsync();
-
+    console.log("Background permission status: ", backgroundPermission.status);
     if (backgroundPermission.status !== Location.PermissionStatus.GRANTED) {
-        throw new Error("Background location permission denied");
+        Alert.alert(
+            t("Background location permission required"),
+            t("Please allow background location access so your vehicle location can be shared for bus route tracking."),
+            [
+                {
+                    text: t("Cancel"),
+                    style: "cancel",
+                },
+                {
+                    text: t("Open Settings"),
+                    onPress: () => {
+                        void Linking.openSettings();
+                    },
+                },
+            ],
+        );
+
+        return;
     }
 
     const hasStarted = await TaskManager.isTaskRegisteredAsync(

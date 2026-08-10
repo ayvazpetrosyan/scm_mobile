@@ -3,7 +3,6 @@ import {Platform, StyleSheet, Text, StatusBar, View} from 'react-native';
 import {Stack, useLocalSearchParams} from 'expo-router';
 import {useTranslation} from "react-i18next";
 import GeneralPage from "@/app/components/GeneralPage";
-
 import {WebView} from "react-native-webview";
 
 const HtmlDescription = ({html}: { html: string }) => {
@@ -60,14 +59,11 @@ const NotificationDetail = () => {
     const {
         title,
         description,
-        date,
-        senderName,
+        subTitle,
     } = useLocalSearchParams<{
-        id: string;
         title?: string;
         description?: string;
-        date?: string;
-        senderName?: string;
+        subTitle?: string;
     }>();
 
     return (
@@ -76,19 +72,16 @@ const NotificationDetail = () => {
 
             <GeneralPage showHomeButton={true}>
                 <View style={styles.container}>
-                    <Text style={styles.header}>{title}</Text>
-
-                    <View style={styles.item}>
-                        <Text style={styles.label}>{t('Date:')}</Text>
-                        <Text style={styles.value}>{date}</Text>
-
-                        {senderName ? (
+                    <View style={styles.headerBlock}>
+                        <Text style={styles.header}>{title}</Text>
+                        {subTitle ? (
                             <>
-                                <Text style={styles.label}>{t('Sender:')}</Text>
-                                <Text style={styles.value}>{senderName}</Text>
+                                <Text style={styles.value}>{subTitle}</Text>
                             </>
                         ) : null}
+                    </View>
 
+                    <View style={styles.item}>
                         <Text style={styles.label}>{t('Description:')}</Text>
                         <View style={styles.descriptionContainer}>
                             <HtmlDescription html={description || ''}/>
@@ -106,18 +99,20 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         paddingTop: StatusBar.currentHeight,
-        marginHorizontal: 16,
+        marginHorizontal: 3,
     },
     item: {
-        backgroundColor: '#c2cfff',
-        padding: 20,
-        marginVertical: 8,
+        padding: 3,
+        marginVertical: 4,
         borderRadius: 20,
         borderColor: 'black',
     },
+    headerBlock: {
+        borderBottomWidth: 3,
+    },
     header: {
-        fontSize: 32,
-        backgroundColor: '#fff',
+        borderBottomColor: '#ccc',
+        fontSize: 20,
     },
     title: {
         backgroundColor: '#c2cfff',
@@ -126,7 +121,7 @@ const styles = StyleSheet.create({
     label: {
         fontSize: 16,
         fontWeight: '700',
-        marginTop: 10,
+        marginTop: 3,
     },
     value: {
         fontSize: 16,
@@ -137,7 +132,6 @@ const styles = StyleSheet.create({
         marginTop: 4,
         overflow: 'hidden',
         borderRadius: 8,
-        backgroundColor: '#ffffff',
     },
     descriptionWebView: {
         flex: 1,

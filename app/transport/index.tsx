@@ -2,149 +2,74 @@ import React, { useEffect, useState } from "react";
 import {
     ScrollView,
     StyleSheet,
-    Text,
     View,
 } from "react-native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useTranslation } from "react-i18next";
 import GeneralPage from "@/app/components/GeneralPage";
-import type { User } from "@/app/types/user";
-import { getScmUser } from "@/app/services/storage/userStorage";
 import {TransportMap} from "@/app/components/map";
-import {startDriverLocationTrackingIfAllowed} from "@/app/services/location/locationService";
+import ApiService from "@/app/services/api/apiService";
+import {getScmToken} from "@/app/services/storage/tokenStorage";
 
-export type TransportMapPoint = {
+export type TransportMapPointType = {
     title: string;
     lat: number;
     lng: number;
 };
 
-const defaultMarkedPoints: TransportMapPoint[] = [
-    {
-        title: "Test point",
-        lat: 40.1872,
-        lng: 44.5152,
-    },
-];
-
-function InfoRow({
-                     icon,
-                     label,
-                     value,
-                 }: {
-    icon: keyof typeof MaterialCommunityIcons.glyphMap;
-    label: string;
-    value?: string | null;
-}) {
-    return (
-        <View style={styles.row}>
-            <MaterialCommunityIcons
-                name={icon}
-                size={24}
-                color="#1976D2"
-                style={styles.icon}
-            />
-
-            <View style={styles.textContainer}>
-                <Text style={styles.label}>{label}</Text>
-                <Text style={styles.value}>
-                    {value && value.trim() !== "" ? value : "-"}
-                </Text>
-            </View>
-        </View>
-    );
-}
-
 export default function Transport() {
-    const [user, setUser] = useState<User | null>(null);
-    const { t } = useTranslation();
-
-    const hasShareLocationPermission =
-        user?.permissions?.some(
-            (p) =>
-                p.controller === "Transport" &&
-                p.action === "shareLocation"
-        ) ?? false;
+    const [transportMapPoints, setTransportMapPoints] = useState<TransportMapPointType[]>([]);
 
     useEffect(() => {
-        const fetchUser = async () => {
-            const userFromStorage = await getScmUser();
+        let isMounted = true;
 
-            if (typeof userFromStorage !== "string") {
-                return;
-            }
+        const fetchTransportMapPoints = async () => {
+            try {
+                const token = await getScmToken();
 
-            const parsedUser: User = JSON.parse(userFromStorage);
-            setUser(parsedUser);
-        };
-
-        void fetchUser();
-    }, []);
-
-    useEffect(() => {
-        const startLocationTracking = async () => {
-            if (hasShareLocationPermission) {
-                try {
-                    await startDriverLocationTrackingIfAllowed();
-                } catch (error) {
-                    console.error("Error starting driver location tracking:", error);
+                if (!token) {
+                    return;
                 }
+
+                const response = await ApiService.get<TransportMapPointType[]>("/transport/location", {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+
+                if (!isMounted) {
+                    return;
+                }
+
+                console.log('Driver locations - ', response.data)
+
+                setTransportMapPoints(response.data);
+            } catch (error) {
+                console.error("Error fetching transport map points:", error);
             }
         };
 
-        void startLocationTracking();
-    }, [hasShareLocationPermission]);
+        void fetchTransportMapPoints();
+
+        const intervalId = setInterval(() => {
+            void fetchTransportMapPoints();
+        }, 30000);
+
+        return () => {
+            isMounted = false;
+            clearInterval(intervalId);
+        };
+    }, []);
 
     return (
         <GeneralPage
             showUserHeader={false}
+            shareLocation={true}
         >
             <ScrollView contentContainerStyle={styles.container}>
-                {hasShareLocationPermission ? (
-                    <View style={styles.infoContainer}>
-                        <InfoRow
-                            icon="account"
-                            label={t("Name")}
-                            value={user?.name}
-                        />
-
-                        <InfoRow
-                            icon="map-marker"
-                            label={t("Vehicle title on map")}
-                            value={user?.vehicleTitleOnMap}
-                        />
-
-                        <InfoRow
-                            icon="routes"
-                            label={t("Transport line number")}
-                            value={user?.vehicleLineName}
-                        />
-
-                        <InfoRow
-                            icon="card-text"
-                            label={t("Vehicle registration number")}
-                            value={user?.vehicleRegistrationNumber}
-                        />
-
-                        <InfoRow
-                            icon="bus"
-                            label={t("Vehicle name")}
-                            value={user?.vehicleDescription}
-                        />
-
-                        <InfoRow
-                            icon="text-box-outline"
-                            label={t("Vehicle description")}
-                            value={user?.vehicleInfo}
-                        />
-                    </View>
-                ) : (
-                    <View style={styles.infoContainer}>
-                        <TransportMap
-                            points={defaultMarkedPoints}
-                        />
-                    </View>
-                )}
+                <View style={styles.infoContainer}>
+                    <TransportMap
+                        points={transportMapPoints}
+                    />
+                </View>
             </ScrollView>
         </GeneralPage>
     );
@@ -177,27 +102,6 @@ const styles = StyleSheet.create({
         paddingVertical: 12,
         borderBottomWidth: StyleSheet.hairlineWidth,
         borderBottomColor: "#E5E5E5",
-    },
-
-    icon: {
-        width: 30,
-    },
-
-    textContainer: {
-        flex: 1,
-        marginLeft: 12,
-    },
-
-    label: {
-        fontSize: 13,
-        color: "#777",
-        marginBottom: 3,
-    },
-
-    value: {
-        fontSize: 16,
-        fontWeight: "600",
-        color: "#222",
     },
 
     noPermissionText: {

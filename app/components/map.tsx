@@ -32,7 +32,7 @@ export function TransportMap({
                           points,
                           center = transportMapCenter,
                           zoom = 13,
-                          height = 800,
+                          height = 600,
                       }: TransportMapProps) {
     const [mapError, setMapError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);

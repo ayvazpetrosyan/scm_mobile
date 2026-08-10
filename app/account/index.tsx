@@ -63,7 +63,7 @@ export default function AccountPage() {
     }
 
     return (
-        <GeneralPage showUserHeader={false} showLanguageSwitcher={true}>
+        <GeneralPage showUserHeader={false} showLanguageSwitcher={true} shareLocation={true}>
             <ScrollView contentContainerStyle={styles.container}>
                 <Image
                     source={{

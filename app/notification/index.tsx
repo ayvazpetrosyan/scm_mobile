@@ -1,4 +1,4 @@
-import {Link, Stack, Href} from "expo-router";
+import {Link, Href} from "expo-router";
 import GeneralPage from "@/app/components/GeneralPage";
 import {FlatList, StyleSheet, Text, View} from "react-native";
 import React, {useEffect, useState} from "react";
@@ -10,8 +10,7 @@ type NotificationRowType = {
     id: string;
     title: string;
     description: string;
-    date: string;
-    senderName: string;
+    subTitle: string;
     href: Href;
 };
 
@@ -49,8 +48,6 @@ export default function Notification() {
 
     return (
         <>
-            <Stack.Screen options={{title: t('Notifications')}}/>
-
             {/* If there is FlatList child element, the scroll must be false */}
             <GeneralPage showHomeButton={true} scroll={false}>
                 <View style={styles.container}>
@@ -70,15 +67,14 @@ export default function Notification() {
                                             id: item.id,
                                             title: item.title,
                                             description: item.description,
-                                            date: item.date,
-                                            senderName: item.senderName,
+                                            subTitle: item.subTitle,
                                         },
                                     }}
                                     style={styles.notification}
                                 >
                                     <View>
                                         <Text style={styles.notificationTitle}>{item.title}</Text>
-                                        <Text style={styles.notificationDate}>{item.date}</Text>
+                                        <Text style={styles.notificationDate}>{item.subTitle}</Text>
                                     </View>
                                 </Link>
                             )}
@@ -97,7 +93,7 @@ export default function Notification() {
 const styles = StyleSheet.create({
     container: {
         backgroundColor: '#f5f9ff',
-        paddingHorizontal: 16,
+        paddingHorizontal: 2,
         flex: 1,
     },
     messageText: {
@@ -108,7 +104,7 @@ const styles = StyleSheet.create({
     },
     notification: {
         backgroundColor: '#fff',
-        padding: 12,
+        padding: 10,
         borderRadius: 8,
         marginBottom: 10,
         shadowColor: '#000',

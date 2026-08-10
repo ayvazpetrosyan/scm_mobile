@@ -18,6 +18,7 @@ import {Ionicons, MaterialCommunityIcons} from "@expo/vector-icons";
 import {useTranslation} from "react-i18next";
 import {fetchUserFromStorage} from "@/app/services/user/userService";
 import type {User} from "@/app/types/user";
+import {startDriverLocationTrackingIfAllowed} from "@/app/services/location/locationService";
 
 type GeneralPageProps = {
     title?: string;
@@ -31,8 +32,38 @@ type GeneralPageProps = {
     showHomeButton?: boolean;
     showBackButton?: boolean;
     showFilterButton?: boolean;
+    showVehicleInfo?: boolean;
+    shareLocation?: boolean;
     filterButtonHref?: Href;
 };
+
+function InfoRow({
+                     icon,
+                     label,
+                     value,
+                 }: {
+    icon: keyof typeof MaterialCommunityIcons.glyphMap;
+    label: string;
+    value?: string | null;
+}) {
+    return (
+        <View style={styles.row}>
+            <MaterialCommunityIcons
+                name={icon}
+                size={24}
+                color="#1976D2"
+                style={styles.icon}
+            />
+
+            <View style={styles.textContainer}>
+                <Text style={styles.label}>{label}</Text>
+                <Text style={styles.value}>
+                    {value && value.trim() !== "" ? value : "-"}
+                </Text>
+            </View>
+        </View>
+    );
+}
 
 export default function GeneralPage({
     title,
@@ -46,6 +77,8 @@ export default function GeneralPage({
     showHomeButton = true,
     showBackButton = true,
     showFilterButton = false,
+    showVehicleInfo = false,
+    shareLocation = false,
     filterButtonHref = '/',
 }: GeneralPageProps) {
     const {t} = useTranslation();
@@ -71,6 +104,27 @@ export default function GeneralPage({
 
         void fetchUser();
     }, [showUserHeader, router]);
+
+    const hasShareLocationPermission =
+        user?.permissions?.some(
+            (p) =>
+                p.controller === "Transport" &&
+                p.action === "shareLocation"
+        ) ?? false;
+
+    useEffect(() => {
+        const startLocationTracking = async () => {
+                try {
+                    await startDriverLocationTrackingIfAllowed();
+                } catch (error) {
+                    console.error("Error starting driver location tracking:", error);
+                }
+        };
+
+        if (hasShareLocationPermission && shareLocation) {
+            void startLocationTracking();
+        }
+    }, [hasShareLocationPermission, shareLocation]);
 
     const openAccountPage = () => {
         router.push("/account");
@@ -199,6 +253,16 @@ export default function GeneralPage({
             ) : (
                 content
             )}
+
+            {hasShareLocationPermission && showVehicleInfo && (
+                <View style={styles.infoContainer}>
+                    <InfoRow icon="map-marker" label={t("Vehicle title on map")} value={user?.vehicleTitleOnMap} />
+                    <InfoRow icon="routes" label={t("Transport line number")} value={user?.vehicleLineName} />
+                    <InfoRow icon="card-text" label={t("Vehicle registration number")} value={user?.vehicleRegistrationNumber} />
+                    <InfoRow icon="bus" label={t("Vehicle name")} value={user?.vehicleDescription} />
+                    <InfoRow icon="text-box-outline" label={t("Vehicle description")} value={user?.vehicleInfo} />
+                </View>
+            )}
         </SafeAreaView>
     );
 }
@@ -207,6 +271,43 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#f5f9ff",
+    },
+    row: {
+        flexDirection: "row",
+        alignItems: "center",
+        paddingVertical: 12,
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        borderBottomColor: "#E5E5E5",
+    },
+    icon: {
+        width: 30,
+    },
+    textContainer: {
+        flex: 1,
+        marginLeft: 12,
+    },
+    label: {
+        fontSize: 13,
+        color: "#777",
+        marginBottom: 3,
+    },
+    value: {
+        fontSize: 16,
+        fontWeight: "600",
+        color: "#222",
+    },
+    infoContainer: {
+        backgroundColor: "#FFFFFF",
+        borderRadius: 12,
+        padding: 5,
+        elevation: 3,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 5,
     },
     scrollContent: {
         flexGrow: 1,

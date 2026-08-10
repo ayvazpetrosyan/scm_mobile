@@ -24,6 +24,9 @@ type PermissionListType = PermissionType[];
 
 const App = () => {
     const {t} = useTranslation();
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [userPermissions, setPermissions] = useState<PermissionListType>([]);
 
     const mainNavItems: MenuItemType[] = [
         {
@@ -84,10 +87,6 @@ const App = () => {
         },
     ];
 
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const [userPermissions, setPermissions] = useState<PermissionListType>([]);
-
     useEffect(() => {
         const fetchPermissions = async () => {
             try {
@@ -121,7 +120,7 @@ const App = () => {
 
     return (
         // If there is FlatList child element, the scroll must be false
-        <GeneralPage showHomeButton={false} showBackButton={false} showUserHeader={true} scroll={false}>
+        <GeneralPage showHomeButton={false} showBackButton={false} showUserHeader={true} scroll={false} showVehicleInfo={true}>
             <SafeAreaProvider>
                 <SafeAreaView style={styles.container} edges={['top']}>
                     {loading ? (

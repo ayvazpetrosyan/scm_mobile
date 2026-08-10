@@ -32,7 +32,7 @@ type OrderResponseType = {
 export default function Canteen() {
     const {t} = useTranslation();
     const [orderHistory, setOrderHistory] = useState<OrderHistoryType[]>([]);
-    const [weekCountForOrderHistory, setWeekCountForOrderHistory] = useState(0);
+    const [weekCountForOrderHistory, setWeekCountForOrderHistory] = useState(4);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -47,7 +47,7 @@ export default function Canteen() {
                 headers: {Authorization: `Bearer ${token}`},
             })
                 .then((response) => {
-                    setOrderHistory(Array.isArray(response.data) ? response.data : []);
+                    setOrderHistory(Array.isArray(response.data.orderHistory) ? response.data.orderHistory : []);
                     setWeekCountForOrderHistory(response.data.weekCountForOrderHistory ?? 0);
                 })
                 .catch((err) => {
@@ -59,7 +59,7 @@ export default function Canteen() {
                 });
         };
 
-        getOrderHistory().then(r => console.error('order history'));
+        void getOrderHistory();
     }, []);
 
     return (
