@@ -17,6 +17,9 @@
     "download": {
       "android": {
         "buildType": "apk"
+      },
+      "ios": {
+        "distribution": "internal"
       }
     }
   },
