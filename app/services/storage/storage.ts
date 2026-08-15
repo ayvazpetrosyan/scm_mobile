@@ -6,9 +6,21 @@
 import { Platform } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 
+const canUseLocalStorage = () => {
+    return (
+        Platform.OS === 'web' &&
+        typeof globalThis !== 'undefined' &&
+        typeof globalThis.localStorage !== 'undefined'
+    );
+};
+
 export async function setStorage(key: string, value: string) {
+    if (canUseLocalStorage()) {
+        globalThis.localStorage.setItem(key, value);
+        return;
+    }
+
     if (Platform.OS === 'web') {
-        localStorage.setItem(key, value);
         return;
     }
 
@@ -16,16 +28,24 @@ export async function setStorage(key: string, value: string) {
 }
 
 export async function getStorage(key: string) {
+    if (canUseLocalStorage()) {
+        return globalThis.localStorage.getItem(key);
+    }
+
     if (Platform.OS === 'web') {
-        return localStorage.getItem(key);
+        return null;
     }
 
     return await SecureStore.getItemAsync(key);
 }
 
 export async function removeStorage(key: string) {
+    if (canUseLocalStorage()) {
+        globalThis.localStorage.removeItem(key);
+        return;
+    }
+
     if (Platform.OS === 'web') {
-        localStorage.removeItem(key);
         return;
     }
 
