@@ -53,6 +53,20 @@ type OrderResponseType = {
     dishesByWeekDays?: DishesByWeekDayType[];
 };
 
+const getInitialSelectedDishCounts = (days: DishesByWeekDayType[]): SelectedDishCountsType => {
+    return days.reduce<SelectedDishCountsType>((countsByDay, day) => {
+        const dayId = String(day.id);
+
+        countsByDay[dayId] = day.dishes.reduce<Record<number, number>>((countsByDish, dish) => {
+            countsByDish[dish.id] = Number(dish.count ?? 0);
+
+            return countsByDish;
+        }, {});
+
+        return countsByDay;
+    }, {});
+};
+
 export default function Canteen() {
     const {t} = useTranslation();
     const [orderHistory, setOrderHistory] = useState<OrderHistoryType[]>([]);
@@ -110,7 +124,7 @@ export default function Canteen() {
         setSelectedDishCounts((previousCounts) => ({
             ...previousCounts,
             [dayId]: {
-                ...(previousCounts[dayId] ?? {}),
+                ...previousCounts[dayId],
                 [dishId]: Number.isNaN(numericValue) ? 0 : numericValue,
             },
         }));
@@ -166,8 +180,13 @@ export default function Canteen() {
                 headers: {Authorization: `Bearer ${token}`},
             })
                 .then((response) => {
+                    const dishesByWeekDays = Array.isArray(response.data.dishesByWeekDays)
+                        ? response.data.dishesByWeekDays
+                        : [];
+                    
                     setOrderHistory(Array.isArray(response.data.orderHistory) ? response.data.orderHistory : []);
-                    setDishesByWeekDays(Array.isArray(response.data.dishesByWeekDays) ? response.data.dishesByWeekDays : []);
+                    setDishesByWeekDays(dishesByWeekDays);
+                    setSelectedDishCounts(getInitialSelectedDishCounts(dishesByWeekDays));
                     setWeekCountForOrderHistory(response.data.weekCountForOrderHistory ?? 0);
                 })
                 .catch((err) => {
@@ -226,17 +245,17 @@ export default function Canteen() {
                                 return (
                                     <View style={styles.orderCard}>
                                         <View style={styles.orderHeader}>
-                                            <Text style={styles.dateLabel}>{item.title ?? t('Day')}</Text>
+                                            <Text style={styles.dateLabel}>{item.title ?? t('Date')}</Text>
                                             <Text style={styles.dateValue}>{item.date ?? ''}</Text>
                                         </View>
 
                                         <View style={styles.dishesContainer}>
-                                            {item.dishes.map((dish) => {
+                                            {item.dishes.map((dish, dishIndex) => {
                                                 const selectedCount = getDishSelectedCount(dayId, dish.id);
                                                 const dishTotalPrice = getDishTotalPrice(dayId, dish);
 
                                                 return (
-                                                    <View key={dish.id} style={styles.orderDishRow}>
+                                                    <View key={`${dayId}-${dish.id}-${dishIndex}`} style={styles.orderDishRow}>
                                                         <View style={styles.orderDishInfo}>
                                                             <Text style={styles.dishTitle}>{getDishName(dish)}</Text>
                                                             <Text style={styles.dishMeta}>
@@ -293,8 +312,8 @@ export default function Canteen() {
                                     </Text>
 
                                     {orderHistory.length > 0 ? (
-                                        orderHistory.map((item) => (
-                                            <View key={item.id} style={styles.orderCard}>
+                                        orderHistory.map((item, index) => (
+                                            <View key={`${item.id}-${item.date}-${index}`} style={styles.orderCard}>
                                                 <View style={styles.orderHeader}>
                                                     <Text style={styles.dateLabel}>{t('Date')}</Text>
                                                     <Text style={styles.dateValue}>{item.date}</Text>
@@ -303,8 +322,8 @@ export default function Canteen() {
                                                 <View style={styles.dishesContainer}>
                                                     <Text style={styles.sectionTitle}>{t('Dishes')}</Text>
 
-                                                    {item.dishes.map((dish) => (
-                                                        <View key={dish.id} style={styles.dishRow}>
+                                                    {item.dishes.map((dish, dishIndex) => (
+                                                        <View key={`${item.id}-${dish.id}-${dishIndex}`} style={styles.dishRow}>
                                                             <Text style={styles.dishTitle}>
                                                                 {dish.translation.title}
                                                             </Text>

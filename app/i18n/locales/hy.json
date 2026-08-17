@@ -57,6 +57,11 @@
   "Please allow background location access so your vehicle location can be shared for bus route tracking.": "Խնդրւմ ենք թույլատրել տեղադրումների հասանելիությունը որպեսզի ձեր ավտոմեքենայի տեղը հասանելի լինի աշակերտներին։",
   "Cancel": "Չեղարկել",
   "Open Settings": "Բացել կարգավորումները",
+  "Choose dishes for each day of next week.": "Ընտրեք ճաշատեսակներ հաջորդ շաբաթվա յուրաքանչյուր օրվա համար։",
+  "Total sum for the whole week": "Շաբաթվա պատվերների ընդհանուր արժեքը",
+  "Daily total price": "Օրվա ընդհանուր արժեքը",
+  "Next week order": "Հաջորդ շաբաթվա պատվերները",
+  "Save order": "Պահապանել պատվերը",
   "common": {
     "home": "Գլխավոր",
     "account": "Հաշիվ",
