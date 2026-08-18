@@ -1,7 +1,7 @@
 import GeneralPage from "@/app/components/GeneralPage";
 import {SafeAreaProvider} from "react-native-safe-area-context";
 import React, {useEffect, useMemo, useState} from "react";
-import {FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
+import {FlatList, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
 import {useTranslation} from "react-i18next";
 import ApiService from "@/app/services/api/apiService";
 import {getScmToken} from "@/app/services/storage/tokenStorage";
@@ -75,6 +75,8 @@ export default function Canteen() {
     const [weekCountForOrderHistory, setWeekCountForOrderHistory] = useState(4);
     const [loading, setLoading] = useState(false);
     const [savingDayId, setSavingDayId] = useState<string | null>(null);
+    const [expandedDayId, setExpandedDayId] = useState<string | null>(null);
+    const [isOrderHistoryModalVisible, setIsOrderHistoryModalVisible] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -124,10 +126,14 @@ export default function Canteen() {
         setSelectedDishCounts((previousCounts) => ({
             ...previousCounts,
             [dayId]: {
-                ...previousCounts[dayId],
+                ...(previousCounts[dayId] ?? {}),
                 [dishId]: Number.isNaN(numericValue) ? 0 : numericValue,
             },
         }));
+    };
+
+    const toggleExpandedDay = (dayId: string) => {
+        setExpandedDayId((previousDayId) => previousDayId === dayId ? null : dayId);
     };
 
     const saveDayOrder = async (day: DishesByWeekDayType) => {
@@ -183,7 +189,7 @@ export default function Canteen() {
                     const dishesByWeekDays = Array.isArray(response.data.dishesByWeekDays)
                         ? response.data.dishesByWeekDays
                         : [];
-                    
+
                     setOrderHistory(Array.isArray(response.data.orderHistory) ? response.data.orderHistory : []);
                     setDishesByWeekDays(dishesByWeekDays);
                     setSelectedDishCounts(getInitialSelectedDishCounts(dishesByWeekDays));
@@ -228,6 +234,16 @@ export default function Canteen() {
                                         <Text style={styles.successText}>{successMessage}</Text>
                                     ) : null}
 
+                                    <TouchableOpacity
+                                        style={styles.orderHistoryButton}
+                                        activeOpacity={0.75}
+                                        onPress={() => setIsOrderHistoryModalVisible(true)}
+                                    >
+                                        <Text style={styles.orderHistoryButtonText}>
+                                            {t('See order history')}
+                                        </Text>
+                                    </TouchableOpacity>
+
                                     <View style={styles.weekTotalCard}>
                                         <Text style={styles.weekTotalLabel}>{t('Total sum for the whole week')}</Text>
                                         <Text style={styles.weekTotalValue}>
@@ -241,114 +257,157 @@ export default function Canteen() {
                             renderItem={({item}) => {
                                 const dayId = String(item.id);
                                 const dayTotalPrice = getDayTotalPrice(item);
+                                const isExpanded = expandedDayId === dayId;
 
                                 return (
                                     <View style={styles.orderCard}>
-                                        <View style={styles.orderHeader}>
-                                            <Text style={styles.dateLabel}>{item.title ?? t('Date')}</Text>
-                                            <Text style={styles.dateValue}>{item.date ?? ''}</Text>
-                                        </View>
-
-                                        <View style={styles.dishesContainer}>
-                                            {item.dishes.map((dish, dishIndex) => {
-                                                const selectedCount = getDishSelectedCount(dayId, dish.id);
-                                                const dishTotalPrice = getDishTotalPrice(dayId, dish);
-
-                                                return (
-                                                    <View key={`${dayId}-${dish.id}-${dishIndex}`} style={styles.orderDishRow}>
-                                                        <View style={styles.orderDishInfo}>
-                                                            <Text style={styles.dishTitle}>{getDishName(dish)}</Text>
-                                                            <Text style={styles.dishMeta}>
-                                                                {getDishUnitPrice(dish)} {t('AMD')} / {getDishUnitCount(dish)} {getDishUnit(dish)}
-                                                            </Text>
-                                                            <Text style={styles.dishMeta}>
-                                                                {t('Total price')}: {dishTotalPrice} {t('AMD')}
-                                                            </Text>
-                                                        </View>
-
-                                                        <TextInput
-                                                            style={styles.countInput}
-                                                            keyboardType="number-pad"
-                                                            value={selectedCount ? String(selectedCount) : ''}
-                                                            placeholder="0"
-                                                            onChangeText={(value) => updateDishCount(dayId, dish.id, value)}
-                                                        />
-                                                    </View>
-                                                );
-                                            })}
-                                        </View>
-
-                                        <View style={styles.totalRow}>
-                                            <Text style={styles.totalLabel}>{t('Daily total price')}</Text>
-                                            <Text style={styles.totalValue}>
-                                                {dayTotalPrice} {t('AMD')}
-                                            </Text>
-                                        </View>
-
                                         <TouchableOpacity
-                                            style={[
-                                                styles.saveButton,
-                                                savingDayId === dayId && styles.saveButtonDisabled,
-                                            ]}
+                                            style={styles.orderHeader}
                                             activeOpacity={0.75}
-                                            disabled={savingDayId === dayId}
-                                            onPress={() => saveDayOrder(item)}
+                                            onPress={() => toggleExpandedDay(dayId)}
                                         >
-                                            <Text style={styles.saveButtonText}>
-                                                {savingDayId === dayId ? t('Saving...') : t('Save order')}
-                                            </Text>
+                                            <View>
+                                                <Text style={styles.dateLabel}>{item.title ?? t('Date')}</Text>
+                                                <Text style={styles.dateValue}>{item.date ?? ''}</Text>
+                                            </View>
+
+                                            <View style={styles.accordionHeaderRight}>
+                                                <Text style={styles.accordionTotalText}>
+                                                    {dayTotalPrice} {t('AMD')}
+                                                </Text>
+                                                <Text style={styles.accordionIcon}>
+                                                    {isExpanded ? '▲' : '▼'}
+                                                </Text>
+                                            </View>
                                         </TouchableOpacity>
+
+                                        {isExpanded ? (
+                                            <>
+                                                <View style={styles.dishesContainer}>
+                                                    {item.dishes.map((dish, dishIndex) => {
+                                                        const selectedCount = getDishSelectedCount(dayId, dish.id);
+                                                        const dishTotalPrice = getDishTotalPrice(dayId, dish);
+
+                                                        return (
+                                                            <View key={`${dayId}-${dish.id}-${dishIndex}`} style={styles.orderDishRow}>
+                                                                <View style={styles.orderDishInfo}>
+                                                                    <Text style={styles.dishTitle}>{getDishName(dish)}</Text>
+                                                                    <Text style={styles.dishMeta}>
+                                                                        {getDishUnitPrice(dish)} {t('AMD')} / {getDishUnitCount(dish)} {getDishUnit(dish)}
+                                                                    </Text>
+                                                                    <Text style={styles.dishMeta}>
+                                                                        {t('Total price')}: {dishTotalPrice} {t('AMD')}
+                                                                    </Text>
+                                                                </View>
+
+                                                                <TextInput
+                                                                    style={styles.countInput}
+                                                                    keyboardType="number-pad"
+                                                                    value={selectedCount ? String(selectedCount) : ''}
+                                                                    placeholder="0"
+                                                                    onChangeText={(value) => updateDishCount(dayId, dish.id, value)}
+                                                                />
+                                                            </View>
+                                                        );
+                                                    })}
+                                                </View>
+
+                                                <View style={styles.totalRow}>
+                                                    <Text style={styles.totalLabel}>{t('Daily total price')}</Text>
+                                                    <Text style={styles.totalValue}>
+                                                        {dayTotalPrice} {t('AMD')}
+                                                    </Text>
+                                                </View>
+
+                                                <TouchableOpacity
+                                                    style={[
+                                                        styles.saveButton,
+                                                        savingDayId === dayId && styles.saveButtonDisabled,
+                                                    ]}
+                                                    activeOpacity={0.75}
+                                                    disabled={savingDayId === dayId}
+                                                    onPress={() => saveDayOrder(item)}
+                                                >
+                                                    <Text style={styles.saveButtonText}>
+                                                        {savingDayId === dayId ? t('Saving...') : t('Save order')}
+                                                    </Text>
+                                                </TouchableOpacity>
+                                            </>
+                                        ) : null}
                                     </View>
                                 );
                             }}
                             ListEmptyComponent={
                                 <Text style={styles.messageText}>{t('No data found')}</Text>
                             }
-                            ListFooterComponent={
-                                <View>
-                                    <Text style={styles.sectionHeading}>{t('Order history')}</Text>
-                                    <Text style={styles.description}>
-                                        {t('Here you can see your order history for the last')} {weekCountForOrderHistory} {t('weeks.')}
-                                    </Text>
-
-                                    {orderHistory.length > 0 ? (
-                                        orderHistory.map((item, index) => (
-                                            <View key={`${item.id}-${item.date}-${index}`} style={styles.orderCard}>
-                                                <View style={styles.orderHeader}>
-                                                    <Text style={styles.dateLabel}>{t('Date')}</Text>
-                                                    <Text style={styles.dateValue}>{item.date}</Text>
-                                                </View>
-
-                                                <View style={styles.dishesContainer}>
-                                                    <Text style={styles.sectionTitle}>{t('Dishes')}</Text>
-
-                                                    {item.dishes.map((dish, dishIndex) => (
-                                                        <View key={`${item.id}-${dish.id}-${dishIndex}`} style={styles.dishRow}>
-                                                            <Text style={styles.dishTitle}>
-                                                                {dish.translation.title}
-                                                            </Text>
-                                                            <Text style={styles.dishCount}>
-                                                                {dish.count} {dish.unit.translation.title}
-                                                            </Text>
-                                                        </View>
-                                                    ))}
-                                                </View>
-
-                                                <View style={styles.totalRow}>
-                                                    <Text style={styles.totalLabel}>{t('Total price')}</Text>
-                                                    <Text style={styles.totalValue}>
-                                                        {item.dalyTotalPrice} {t('AMD')}
-                                                    </Text>
-                                                </View>
-                                            </View>
-                                        ))
-                                    ) : (
-                                        <Text style={styles.messageText}>{t('No data found')}</Text>
-                                    )}
-                                </View>
-                            }
                         />
                     )}
+
+                    <Modal
+                        visible={isOrderHistoryModalVisible}
+                        animationType="slide"
+                        presentationStyle="pageSheet"
+                        onRequestClose={() => setIsOrderHistoryModalVisible(false)}
+                    >
+                        <View style={styles.modalContainer}>
+                            <View style={styles.modalHeader}>
+                                <Text style={styles.modalTitle}>{t('Order history')}</Text>
+
+                                <TouchableOpacity
+                                    style={styles.modalCloseButton}
+                                    activeOpacity={0.75}
+                                    onPress={() => setIsOrderHistoryModalVisible(false)}
+                                >
+                                    <Text style={styles.modalCloseButtonText}>✕</Text>
+                                </TouchableOpacity>
+                            </View>
+
+                            <ScrollView
+                                style={styles.modalContent}
+                                contentContainerStyle={styles.modalScrollContent}
+                                showsVerticalScrollIndicator={false}
+                            >
+                                <Text style={styles.description}>
+                                    {t('Here you can see your order history for the last')} {weekCountForOrderHistory} {t('weeks.')}
+                                </Text>
+
+                                {orderHistory.length > 0 ? (
+                                    orderHistory.map((item, index) => (
+                                        <View key={`${item.id}-${item.date}-${index}`} style={styles.orderCard}>
+                                            <View style={styles.orderHeader}>
+                                                <Text style={styles.dateLabel}>{t('Date')}</Text>
+                                                <Text style={styles.dateValue}>{item.date}</Text>
+                                            </View>
+
+                                            <View style={styles.dishesContainer}>
+                                                <Text style={styles.sectionTitle}>{t('Dishes')}</Text>
+
+                                                {item.dishes.map((dish, dishIndex) => (
+                                                    <View key={`${item.id}-${dish.id}-${dishIndex}`} style={styles.dishRow}>
+                                                        <Text style={styles.dishTitle}>
+                                                            {dish.translation.title}
+                                                        </Text>
+                                                        <Text style={styles.dishCount}>
+                                                            {dish.count} {dish.unit.translation.title}
+                                                        </Text>
+                                                    </View>
+                                                ))}
+                                            </View>
+
+                                            <View style={styles.totalRow}>
+                                                <Text style={styles.totalLabel}>{t('Total price')}</Text>
+                                                <Text style={styles.totalValue}>
+                                                    {item.dalyTotalPrice} {t('AMD')}
+                                                </Text>
+                                            </View>
+                                        </View>
+                                    ))
+                                ) : (
+                                    <Text style={styles.messageText}>{t('No data found')}</Text>
+                                )}
+                            </ScrollView>
+                        </View>
+                    </Modal>
                 </View>
             </SafeAreaProvider>
         </GeneralPage>
@@ -356,6 +415,14 @@ export default function Canteen() {
 }
 
 const styles = StyleSheet.create({
+    orderHeader: {
+        backgroundColor: '#1a73e8',
+        paddingVertical: 12,
+        paddingHorizontal: 12,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
     container: {
         backgroundColor: '#f5f9ff',
         paddingHorizontal: 16,
@@ -434,13 +501,19 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#dbeafe',
     },
-    orderHeader: {
-        backgroundColor: '#1a73e8',
-        paddingVertical: 12,
-        paddingHorizontal: 12,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
+    accordionHeaderRight: {
+        alignItems: 'flex-end',
+    },
+    accordionTotalText: {
+        color: '#ffffff',
+        fontSize: 14,
+        fontWeight: '800',
+        marginBottom: 4,
+    },
+    accordionIcon: {
+        color: '#ffffff',
+        fontSize: 14,
+        fontWeight: '900',
     },
     dateLabel: {
         color: '#ffffff',
@@ -555,5 +628,57 @@ const styles = StyleSheet.create({
         color: '#ffffff',
         fontSize: 15,
         fontWeight: '800',
+    },
+    orderHistoryButton: {
+        backgroundColor: '#1a73e8',
+        borderRadius: 10,
+        paddingVertical: 12,
+        paddingHorizontal: 14,
+        alignItems: 'center',
+        marginBottom: 12,
+    },
+    orderHistoryButtonText: {
+        color: '#ffffff',
+        fontSize: 15,
+        fontWeight: '800',
+    },
+    modalContainer: {
+        flex: 1,
+        backgroundColor: '#f5f9ff',
+    },
+    modalHeader: {
+        backgroundColor: '#ffffff',
+        borderBottomWidth: 1,
+        borderBottomColor: '#e2e8f0',
+        paddingHorizontal: 16,
+        paddingVertical: 14,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
+    modalTitle: {
+        color: '#1f2937',
+        fontSize: 20,
+        fontWeight: '800',
+    },
+    modalCloseButton: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        backgroundColor: '#e8f1ff',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    modalCloseButtonText: {
+        color: '#1a73e8',
+        fontSize: 20,
+        fontWeight: '900',
+    },
+    modalContent: {
+        flex: 1,
+    },
+    modalScrollContent: {
+        padding: 16,
+        paddingBottom: 28,
     },
 });

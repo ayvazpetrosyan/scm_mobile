@@ -62,6 +62,8 @@
   "Daily total price": "Օրվա ընդհանուր արժեքը",
   "Next week order": "Հաջորդ շաբաթվա պատվերները",
   "Save order": "Պահապանել պատվերը",
+  "See order history": "Տեսնել պատվերների պատմությունը",
+  "Error saving order": "Պատվերը չի պահպանվել",
   "common": {
     "home": "Գլխավոր",
     "account": "Հաշիվ",
