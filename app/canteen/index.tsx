@@ -140,17 +140,12 @@ export default function Canteen() {
         const token = await getScmToken();
         const dayId = String(day.id);
 
-        const dishes = day.dishes
+        let dishes = day.dishes
             .map((dish) => ({
                 dishId: dish.id,
                 count: getDishSelectedCount(dayId, dish.id),
             }))
             .filter((dish) => dish.count > 0);
-
-        if (!dishes.length) {
-            setError(t('Please choose at least one dish'));
-            return;
-        }
 
         setSavingDayId(dayId);
         setError(null);
@@ -211,13 +206,6 @@ export default function Canteen() {
         <GeneralPage scroll={false}>
             <SafeAreaProvider>
                 <View style={styles.container}>
-                    <View style={styles.header}>
-                        <Text style={styles.title}>{t('Canteen')}</Text>
-                        <Text style={styles.description}>
-                            {t('Choose dishes for each day of next week.')}
-                        </Text>
-                    </View>
-
                     {loading ? (
                         <Text style={styles.messageText}>{t('Loading...')}</Text>
                     ) : (
@@ -244,14 +232,25 @@ export default function Canteen() {
                                         </Text>
                                     </TouchableOpacity>
 
+                                    <View style={styles.header}>
+                                        <Text style={styles.title}>{t('Canteen')}</Text>
+                                        <Text style={styles.description}>
+                                            {t('Choose dishes count for each day of next week.')}
+                                        </Text>
+                                        <Text style={styles.description}>
+                                            {t('To delete, set the count to 0.')}
+                                        </Text>
+                                        <Text style={styles.description}>
+                                            {t('To save the changes, press the Save order button.')}
+                                        </Text>
+                                    </View>
+
                                     <View style={styles.weekTotalCard}>
-                                        <Text style={styles.weekTotalLabel}>{t('Total sum for the whole week')}</Text>
+                                        <Text style={styles.weekTotalLabel}>{t('Total sum for the whole next week')}</Text>
                                         <Text style={styles.weekTotalValue}>
                                             {weekTotalPrice} {t('AMD')}
                                         </Text>
                                     </View>
-
-                                    <Text style={styles.sectionHeading}>{t('Next week order')}</Text>
                                 </View>
                             }
                             renderItem={({item}) => {
