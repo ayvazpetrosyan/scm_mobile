@@ -10,7 +10,7 @@
     "newArchEnabled": false,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.schoolm.mobile",
+      "bundleIdentifier": "ohanyan.hub",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "UIBackgroundModes": [
@@ -33,7 +33,7 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.ayvaz.scm_mobile"
+      "package": "ohanyan.hub"
     },
     "web": {
       "bundler": "metro",
