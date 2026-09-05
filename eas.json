@@ -14,7 +14,7 @@
         "buildType": "apk"
       },
       "ios": {
-        "distribution": "internal"
+        "enterpriseProvisioning": "adhoc"
       }
     },
     "production": {

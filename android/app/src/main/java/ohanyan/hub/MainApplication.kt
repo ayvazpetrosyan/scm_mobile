@@ -1,4 +1,4 @@
-package com.ayvaz.scm_mobile
+package ohanyan.hub
 
 import android.app.Application
 import android.content.res.Configuration

@@ -1,4 +1,4 @@
-package com.ayvaz.scm_mobile
+package ohanyan.hub
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build
